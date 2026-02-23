@@ -1087,8 +1087,7 @@ const createCommandSet = (editor) => {
                     ...visualHeadcommands,
                 ],
                 run: (keys, { nexts, count = 1 } = {}) => {
-                    keys[0] = "+";
-                    runNext(keys, nexts, { count });
+                    runNext(keys, nexts, { count, register: "+" });
                 }
             },
             {
