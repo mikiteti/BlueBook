@@ -195,6 +195,13 @@ const newCommands = (state) => {
                 window.state.settings.keyboard = goalMode;
                 window.state.alert("Mode switched", "Reload for the changes to take place.");
             }
+        },
+        {
+            name: "Toggle Reading Mode",
+            run: () => {
+                window.state.settings.interactive = !window.state.settings.interactive;
+                window.state.alert("Mode switched", "Reload for the changes to take place.");
+            }
         }
 
         // {

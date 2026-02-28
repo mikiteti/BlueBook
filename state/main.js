@@ -269,8 +269,7 @@ class State {
 
         await window.MathJax.startup.promise;
 
-        // const editor = newEditor({ file: file, layout: "vim", interactive: !matchMedia('(pointer: coarse)').matches });
-        const editor = newEditor({ file: file, interactive: true });
+        const editor = newEditor({ file: file, interactive: this.settings.interactive });
         this.editors.push(editor);
         if (main) {
             this.editor = editor;
