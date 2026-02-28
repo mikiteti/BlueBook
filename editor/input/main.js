@@ -53,34 +53,6 @@ class Input {
 
             command();
         });
-
-        this.touchStart = undefined;
-        document.addEventListener("touchstart", (e) => {
-            if (this.touchStart == undefined && e.touches.length === 1) {
-                this.touchStart = [e.touches[0].clientX, e.touches[0].clientY];
-            } else {
-                this.touchStart = undefined;
-            }
-        });
-
-        document.addEventListener("touchmove", (e) => {
-            if (this.touchStart != undefined && e.touches.length === 1) {
-                let [x0, y0] = this.touchStart;
-                let [x1, y1] = [e.touches[0].clientX, e.touches[0].clientY];
-                if (x1 - x0 > 80 && Math.abs(y1 - y0) < 40) {
-                    this.touchStart = undefined;
-                    window.state.openModal(window.state.filePicker);
-                }
-                else if (x1 - x0 < -80 && Math.abs(y1 - y0) < 40) {
-                    this.touchStart = undefined;
-                    window.state.openModal(window.state.commandPalette);
-                }
-            }
-        })
-
-        document.addEventListener("touchend", (e) => {
-            this.touchStart = undefined;
-        });
     }
 }
 
