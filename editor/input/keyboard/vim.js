@@ -1118,6 +1118,62 @@ const createCommandSet = (editor) => {
                 run: (keys) => {
                     for (let sc of caret.carets) sc.switchEnds();
                 },
+            },
+            {
+                name: "surround",
+                keys: ["s"],
+                next: [
+                    {
+                        name: "add",
+                        keys: ["a"],
+                        next: [
+                            {
+                                name: "brackets",
+                                keys: ["(", ")", "[", "]", "{", "}", "<", ">", "f", "b"],
+                                run: (keys) => {
+                                    let close = { "(": ")", "[": "]", "{": "}", "<": ">" },
+                                        open = { ")": "(", "]": "[", "}": "{", ">": "<" };
+
+                                    let start = "", end = "";
+                                    if ("([{<".includes(keys[0])) {
+                                        start = keys[0] + " ";
+                                        end = " " + close[keys[0]];
+                                    } else if (")]}>".includes(keys[0])) {
+                                        start = open[keys[0]];
+                                        end = keys[0];
+                                    } else { // TODO: these should really be visual snippets
+                                        switch (keys[0]) {
+                                            case "f":
+                                                start = "\\frac{";
+                                                end = "}{}";
+                                                break;
+                                            case "b":
+                                                start = "\\underbrace{";
+                                                end = "}_{}";
+                                                break;
+                                        }
+                                    }
+
+                                    let lengths = new Map();
+                                    dispatch([
+                                        ["move", (pos) => {
+                                            lengths.set(pos.caret, pos.caret.to - pos.caret.from);
+                                            return pos.caret.from;
+                                        }],
+                                        ["mode", "i"],
+                                        ["insert", start],
+                                        ["move", (pos) => {
+                                            return pos.caret.from + lengths.get(pos.caret);
+                                        }],
+                                        ["insert", end],
+                                        ["move", moves["h"](1)],
+                                        ["mode", "n"],
+                                    ]);
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }

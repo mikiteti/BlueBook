@@ -251,6 +251,17 @@ class Render {
             if (line.decos.has("link")) this.handleLink(line);
         }
 
+        if (caretChanged) {
+            let caret = this.editor?.input?.caret?.carets[0];
+            if (caret !== undefined) {
+                if (caret.position.index >= line.from && caret.position.index <= line.to) {
+                    line.element.classList.add("caretInside");
+                    document.documentElement.style.setProperty("--caretLineNum", line.number + 1);
+                    line.element.setAttribute("lineNum", String(line.number + 1));
+                } else line.element.classList.remove("caretInside");
+            }
+        }
+
         if (caretChanged && !marksChanged && !textChanged) {
             for (let mark of line.marks.filter(e => e.role === "math" && e.wrapper && !e.deleted)) {
                 let wrapper = mark.wrapper;

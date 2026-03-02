@@ -16,8 +16,10 @@ class State {
         else savedState = {};
         this.settings = savedState.settings ? { ...Settings, ...savedState.settings } : Settings;
 
-        if (this.settings.lineNumbers) document.documentElement.classList.add("lineNumbers");
+        if (this.settings.lineNumbers && !this.settings.relNumbers) document.documentElement.classList.add("lineNumbers");
         else document.documentElement.classList.remove("lineNumbers");
+        if (this.settings.lineNumbers && this.settings.relNumbers) document.documentElement.classList.add("relNumbers");
+        else document.documentElement.classList.remove("relNumbers");
 
         this.highlight = new Highlight();
         CSS.highlights.set("selection", this.highlight);
@@ -425,7 +427,7 @@ class State {
     }
 
     openModal(modal) {
-        modal.style.display = "unset";
+        modal.style.display = "flex";
         modal.animate([
             { opacity: 0, transform: "translate(-50%, 3px)" },
             { opacity: 1, transform: "translate(-50%, 0px)" }
@@ -448,8 +450,8 @@ class State {
     closeModal() {
         this.focus.style.display = "none";
         this.focus.animate([
-            { opacity: 1, transform: "translate(-50%, 0px)", display: "unset" },
-            { opacity: 0, transform: "translate(-50%, 3px)", display: "unset" }
+            { opacity: 1, transform: "translate(-50%, 0px)", display: "flex" },
+            { opacity: 0, transform: "translate(-50%, 3px)", display: "flex" }
         ], { duration: 100 });
         this.modalBg.style.display = "none";
         this.modalBg.animate([

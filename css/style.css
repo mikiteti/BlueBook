@@ -121,7 +121,14 @@ html {
     min-height: 100vh;
     overflow-x: hidden;
     overflow-y: hidden;
+}
+
+html.lineNumbers {
     counter-reset: lineNumber;
+}
+
+html.relNumbers {
+    counter-reset: relLineNumber var(--caretLineNum);
 }
 
 .noisy::before {
@@ -156,14 +163,15 @@ html {
 }
 
 html.lineNumbers .textarea p,
-html.lineNumbers .DM {
+html.lineNumbers .DM,
+html.relNumbers .textarea p,
+html.relNumbers .DM {
     position: relative;
     margin-left: var(--buffer-width);
 }
 
-html.lineNumbers .textarea p::before {
-    counter-increment: lineNumber;
-    content: counter(lineNumber);
+html.lineNumbers .textarea p::before,
+html.relNumbers .textarea p::before {
     color: inherit;
     /* filter: brightness(80%); */
     /* color: var(--color-accent); */
@@ -173,6 +181,27 @@ html.lineNumbers .textarea p::before {
     left: -30px;
     transform: translate(-100%, 0);
     font-weight: var(--font-weight);
+}
+
+html.lineNumbers .textarea p::before {
+    counter-increment: lineNumber;
+    content: counter(lineNumber);
+}
+
+html.relNumbers .textarea p::before {
+    counter-increment: relLineNumber -1;
+    content: counter(relLineNumber);
+    opacity: 0.5;
+}
+
+html.relNumbers .textarea p.caretInside::before {
+    opacity: 1;
+    content: attr(lineNum);
+}
+
+html.relNumbers .textarea p.caretInside~p::before {
+    counter-increment: relLineNumber 1;
+    content: counter(relLineNumber);
 }
 
 /* html.lineNumbers .textarea p.hidden+.DM::before { */
@@ -186,7 +215,8 @@ html.lineNumbers .textarea p::before {
 /*     font-weight: var(--font-weight); */
 /* } */
 
-html.lineNumbers .textarea p.math::before {
+html.lineNumbers .textarea p.math::before,
+html.relNumbers .textarea p.math::before {
     color: var(--color-math);
 }
 
@@ -472,6 +502,7 @@ img {
     backdrop-filter: blur(5px);
     box-shadow: var(--shadow-lg);
     display: none;
+    flex-direction: column;
     position: fixed;
     min-width: max(40vw, 300px);
     border-radius: 20px;
@@ -479,6 +510,9 @@ img {
     top: 10vw;
     transform: translate(-50%, 0);
     padding: 10px;
+    padding-bottom: 0;
+    max-height: calc(100vh - 20vw);
+    overflow-y: hidden;
 }
 
 .modal input {
@@ -503,6 +537,8 @@ img {
 .modal .list {
     border-radius: 10px;
     padding: 5px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .modal .list div {

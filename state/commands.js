@@ -227,6 +227,20 @@ const newCommands = (state) => {
                 });
             }
         },
+        {
+            name: "Toggle Relative Line Numbers",
+            run: () => {
+                state.settings.relNumbers = !state.settings.relNumbers;
+                if (state.settings.relNumbers) document.documentElement.classList.add("relNumbers");
+                else document.documentElement.classList.remove("relNumbers");
+
+                if (state.settings.lineNumbers) document.documentElement.classList.add("lineNumbers");
+                else document.documentElement.classList.remove("lineNumbers");
+                queueMicrotask(() => {
+                    state.editor?.caret?.placeAllAt();
+                });
+            }
+        },
 
         // {
         //     name: "Restore file",

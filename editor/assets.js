@@ -352,11 +352,9 @@ const key = {
 };
 
 const saveState = () => {
-    console.log("saving state", window.state.registers["a"].content);
     let registers = [];
     for (let reg in window.state.registers) registers.push({ name: window.state.registers[reg].name, content: window.state.registers[reg].content });
     let state = { registers, settings: JSON.parse(JSON.stringify(window.state.settings)) };
-    console.log({ state });
     localStorage.setItem('state', JSON.stringify(state));
 }
 
