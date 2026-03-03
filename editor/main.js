@@ -10,8 +10,13 @@ class Editor {
 
         this.elements = { editor: document.createElement("div") };
         this.elements.editor.classList.add("editor");
-        this.elements.editor.innerHTML = `<div class="textarea"></div> <div class="placeholder" onclick="window.caret.updateCarets([window.editor.doc.chars-1])"></div> <div class="leftInfo info noisy"></div> <div class="rightInfo info noisy"></div>`;
+        this.elements.editor.innerHTML = `<div class="spacer"></div>
+        <div class="textarea"></div>
+        <div class="placeholder" onclick="window.caret.updateCarets([window.editor.doc.chars-1])"></div> 
+        <div class="leftInfo info noisy"></div> 
+        <div class="rightInfo info noisy"></div>`;
         this.wrapper.appendChild(this.elements.editor);
+        this.elements.spacer = this.elements.editor.querySelector(".spacer");
         this.elements.textarea = this.elements.editor.querySelector(".textarea");
         this.elements.placeholder = this.elements.editor.querySelector(".placeholder");
         this.elements.leftInfo = this.elements.editor.querySelector(".leftInfo");

@@ -1,6 +1,6 @@
 import newChange from "./changes.js";
 import { nodeSizes } from "../assets.js";
-import { nodeAt } from "../assets.js";
+import { nodeAt, estimateHeight, measureHeight } from "../assets.js";
 import newHistory from "./history.js";
 
 const previousSibling = (obj) => {
@@ -56,10 +56,26 @@ const defineSmartProperties = (Class, properties) => {
     }
 }
 
+const defineVisualSmartProperties = (Class, properties) => {
+    for (let name in properties) {
+        Object.defineProperty(Class.prototype, name, {
+            get: function() {
+                if (this["_update" + name] !== this._visual_updates) {
+                    this["_last" + name] = properties[name](this);
+                    this["_update" + name] = this._visual_updates;
+                }
+
+                return this["_last" + name];
+            }
+        });
+    }
+}
+
 class Node {
     constructor({ editor, parent, children = [] } = {}) { // changed, chars, text, lines, parent, children
         this.isNode = true;
         this._updates = 1;
+        this._visual_updates = 1;
 
         this.editor = editor;
         if (parent) this.parent = parent;
@@ -71,7 +87,13 @@ class Node {
 
     update() {
         this._updates++;
+        this._visual_updates++;
         this.parent?.update();
+    }
+
+    visualUpdate() {
+        this._visual_updates++;
+        this.parent?.visualUpdate();
     }
 
     delete() {
@@ -120,7 +142,7 @@ class Node {
     }
 }
 
-const nodeProperties = {
+defineSmartProperties(Node, {
     chars: function(obj) {
         let chars = 0
         for (let child of obj.children) chars += child.chars;
@@ -144,8 +166,14 @@ const nodeProperties = {
     text: function(obj) {
         return obj.children.map(e => e.text).join("\n");
     },
-}
-defineSmartProperties(Node, nodeProperties);
+});
+defineVisualSmartProperties(Node, {
+    height: function(obj) {
+        let height = 0;
+        for (let child of obj.children) height += child.height;
+        return height;
+    },
+});
 
 export { Node }
 
@@ -193,6 +221,7 @@ class Doc extends Node {
     }
 
     lineAt(index) {
+        index = Math.max(0, index);
         if (index >= this.chars) {
             let currentNode = this;
             while (!currentNode.isLine) currentNode = currentNode.children.at(-1);
@@ -204,6 +233,29 @@ class Doc extends Node {
             for (let child of currentNode.children) {
                 if (sum + child.chars <= index) {
                     sum += child.chars
+                } else {
+                    currentNode = child;
+                    break;
+                }
+            }
+        }
+
+        return currentNode;
+    }
+
+    lineAtHeight(height) {
+        height = Math.max(0, height);
+        if (height >= this.height) {
+            let currentNode = this;
+            while (!currentNode.isLine) currentNode = currentNode.children.at(-1);
+            return currentNode;
+        }
+
+        let sum = 0, currentNode = this;
+        while (!currentNode.isLine) {
+            for (let child of currentNode.children) {
+                if (sum + child.height <= height) {
+                    sum += child.height
                 } else {
                     currentNode = child;
                     break;
@@ -303,6 +355,7 @@ class Line {
         this.positions = [];
 
         this._updates = 1;
+        this._visual_updates = 1;
     }
 
     assignParent(parent) {
@@ -317,7 +370,13 @@ class Line {
         this.unrenderedChanges.add("text");
         this.text = text;
         this._updates++;
+        this._visual_updates++;
         this.parent.update();
+    }
+
+    visualUpdate() {
+        this._visual_updates++;
+        this.parent.visualUpdate();
     }
 
     delete() {
@@ -377,6 +436,7 @@ class Line {
         }
         let endState = { line: this.number, decos: Array.from(this.decos) };
         if (addToHistory) this.editor.doc.history.addChange({ from: startState, to: endState });
+        this.visualUpdate();
     }
 
     removeDeco(deco, { addToHistory = true } = {}) {
@@ -388,6 +448,7 @@ class Line {
         }
         let endState = { line: this.number, decos: Array.from(this.decos) };
         if (addToHistory) this.editor.doc.history.addChange({ from: startState, to: endState });
+        this.visualUpdate();
     }
 
     toggleDeco(deco, { addToHistory = true } = {}) {
@@ -399,6 +460,7 @@ class Line {
         }
         let endState = { line: this.number, decos: Array.from(this.decos) };
         if (addToHistory) this.editor.doc.history.addChange({ from: startState, to: endState });
+        this.visualUpdate();
     }
 
     setDecos(decos, { addToHistory = true } = {}) {
@@ -408,11 +470,13 @@ class Line {
         for (let deco of decos) this.decos.add(deco);
         let endState = { line: this.number, decos: Array.from(this.decos) };
         if (addToHistory) this.editor.doc.history.addChange({ from: startState, to: endState });
+        this.visualUpdate();
     }
 
     setTabs(type, number) {
         this.unrenderedChanges.add("tabs");
         this.tabs[type] = Math.max(number, 0);
+        this.visualUpdate();
     }
 
     addMark(Mark, { addToHistory = true } = {}) {
@@ -511,6 +575,25 @@ class Line {
         return this.from + this.chars - 1;
     }
 
+    get verticalOffset() {
+        if (!this.parent) return;
+
+        let sum = 0;
+        let currentNode = this;
+        while (currentNode.parent) {
+            for (let sibling of currentNode.parent.children) {
+                if (sibling == currentNode) {
+                    currentNode = currentNode.parent;
+                    break;
+                }
+
+                sum += sibling.height;
+            }
+        }
+
+        return sum;
+    }
+
     get Lines() {
         return [this];
     }
@@ -524,7 +607,7 @@ class Line {
     }
 }
 
-const lineProperties = {
+defineSmartProperties(Line, {
     chars: function(obj) {
         return obj.text.length + 1;
     },
@@ -532,8 +615,12 @@ const lineProperties = {
     words: function(obj) {
         return obj.text.split(" ").length;
     },
-}
-defineSmartProperties(Line, lineProperties);
+});
+defineVisualSmartProperties(Line, {
+    height: function(obj) {
+        return measureHeight(obj);
+    }
+})
 
 export { Line }
 
@@ -657,8 +744,11 @@ class Range {
         if (this.role !== "selection") return;
         if (!this.Range) return;
         let maybeReveal = this.Range.collapsed;
-        this.Range.setStart(...nodeAt(this.start));
-        this.Range.setEnd(...nodeAt(this.end));
+        let startNode = nodeAt(this.start);
+        let endNode = nodeAt(this.end);
+        if (startNode == undefined || endNode == undefined) return;
+        this.Range.setStart(...startNode);
+        this.Range.setEnd(...endNode);
         if (maybeReveal && !this.Range.collapsed) {
             this.editor.render.selection.revealRange(this);
         } if (!maybeReveal && this.Range.collapsed) {

@@ -12,9 +12,18 @@ class Input {
         this.keyboard = newKeyboard({ editor, layout });
         this.caret = new Caret(this.editor, { autoRender: false });
 
+        let yCoord = this.editor.elements.editor.scrollTop;
+        this.editor.elements.editor.addEventListener("scroll", (e) => {
+            if (Math.abs(this.editor.elements.editor.scrollTop - yCoord) > window.innerHeight / 2) {
+                this.editor.render.renderAll();
+                yCoord = this.editor.elements.editor.scrollTop;
+            }
+        });
+
         this.textarea.addEventListener("mousedown", (e) => {
             if (window.state.focus !== this.editor || !this.editor.interactive) return;
             e.preventDefault(); // no selections
+            document.querySelector("#focus").focus();
 
             if (!e.target.Line && !e.target.mark) {
                 console.log("not a line, can't handle click");

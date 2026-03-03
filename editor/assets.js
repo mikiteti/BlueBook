@@ -45,6 +45,7 @@ const checkSpeed = () => {
 window.checkSpeed = checkSpeed;
 
 const getColumnAt = (element, x, y, { style = "bar" } = {}) => {
+    if (!element.isConnected) return 0;
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
     let index = 0;
 
@@ -80,6 +81,7 @@ const getColumnAt = (element, x, y, { style = "bar" } = {}) => {
 
 const getLineBreaks = (line, nodes) => {
     if (nodes == undefined) {
+        if (!line.element?.isConnected) return [];
         const walker = document.createTreeWalker(line.element, NodeFilter.SHOW_TEXT);
         nodes = [];
         while (walker.nextNode()) {
@@ -123,6 +125,7 @@ const _nodeAt = (nodes, index) => {
 
 const nodeAt = (pos) => {
     let nodes = [], index = pos.index - pos.Line.from;
+    if (!pos.Line.element?.isConnected) return;
     const walker = document.createTreeWalker(pos.Line.element, NodeFilter.SHOW_TEXT);
     nodes = [];
     while (walker.nextNode()) {
@@ -175,6 +178,7 @@ const findXIndicesInLine = (x, line) => { // works even when height: 0; transfor
 
     const indices = [];
 
+    if (!line.element?.isConnected) return [line.from];
     const walker = document.createTreeWalker(line.element, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) {
@@ -364,4 +368,24 @@ const getUrl = (link) => {
     return url;
 }
 
-export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, isMac, key, saveState, getUrl };
+const estimateHeight = (line) => {
+    return 26;
+}
+
+const measureHeight = (line) => {
+    if (!line.isRendered || !line.element?.isConnected) return estimateHeight(line);
+    let height = line.element.getBoundingClientRect().height;
+    if (line.element.DM?.isConnected) height += line.element.DM.getBoundingClientRect().height;
+    if (line.element.imgWrapper?.isConnected) height += line.element.imgWrapper.getBoundingClientRect().height;
+    return height;
+}
+
+const isLineInViewport = (line) => {
+    if (line.verticalOffset + line.height >= line.editor.elements.editor.scrollTop - window.innerHeight
+        && line.verticalOffset < line.editor.elements.editor.scrollTop + window.innerHeight * 2) return true;
+    // if (line.verticalOffset + line.height >= line.editor.elements.editor.scrollTop
+    //     && line.verticalOffset < line.editor.elements.editor.scrollTop + window.innerHeight / 2) return true;
+    return false;
+}
+
+export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, isMac, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport };

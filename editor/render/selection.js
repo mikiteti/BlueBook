@@ -12,9 +12,14 @@ class Selection {
 
     parseRange(range) {
         let r = document.createRange();
-        r.setStart(...nodeAt(range.start));
-        r.setEnd(...nodeAt(range.end));
+        let startNode = nodeAt(range.start);
+        let endNode = nodeAt(range.end);
+        console.log({ startNode, endNode });
         range.Range = r;
+
+        if (startNode == undefined || endNode == undefined) return r;
+        r.setStart(...startNode);
+        r.setEnd(...endNode);
 
         return r;
     }

@@ -1,5 +1,5 @@
 import Selection from "./selection.js";
-import { getUrl } from "../assets.js";
+import { getUrl, isLineInViewport } from "../assets.js";
 
 const renderChangedLines = (editor, changedLines) => {
     for (let line of changedLines) editor.render.renderLine(line);
@@ -15,6 +15,7 @@ class Render {
     constructor(editor) {
         this.editor = editor;
         this.textarea = this.editor.elements.textarea;
+        this.editorElement = this.editor.elements.editor;
 
         editor.doc.change.addCallback(renderChangedLines);
         queueMicrotask(() => {
@@ -23,6 +24,8 @@ class Render {
 
         this.decos = ["underline", "bold", "Bold", "italic", "highlight", "math", "center", "small", "large", "capital", "spin_border", "h1", "h2", "h3", "h4", "h5", "h6", "subtitle", "link"];
         this.selection = new Selection(editor);
+
+        this.renderedLines = new Set();
     }
 
     renderInfo() {
@@ -36,16 +39,16 @@ class Render {
         this.editor.elements.leftInfo.innerHTML = mode[this.editor.input?.keyboard?.curMode] || "";
     }
 
-    createLineElement(line) {
-        let lineElement = document.createElement("p");
-        if (line.decos.has("math") || line.decos.has("link")) lineElement.classList.add("hidden");
+    placeElement(line) {
+        const placeWidgets = () => {
+            if (lineElement.imgWrapper) lineElement.after(lineElement.imgWrapper);
+            if (lineElement.DM) lineElement.after(lineElement.DM);
+        }
 
-        lineElement.Line = line;
-        line.assignElement(lineElement);
-
+        let lineElement = line.element || this.createLineElement(line);
         let previousLine = line.previousSibling;
         while (previousLine) {
-            if (previousLine.element) break;
+            if (previousLine.element?.isConnected) break;
             previousLine = previousLine.previousSibling;
         }
         if (previousLine) {
@@ -55,37 +58,71 @@ class Render {
 
             if (DM && (imgWrapper == undefined || imgWrapper.compareDocumentPosition(DM) == Node.DOCUMENT_POSITION_FOLLOWING)) {
                 DM.after(lineElement);
+                placeWidgets();
                 return;
             }
             if (imgWrapper) {
                 imgWrapper.after(lineElement);
+                placeWidgets();
                 return;
             }
 
             previousLine.element.after(lineElement);
+            placeWidgets();
             return;
         }
 
         let nextLine = line.nextSibling;
         while (nextLine) {
-            if (nextLine.element) break;
+            if (nextLine.element?.isConnected) break;
             nextLine = nextLine.nextSibling;
         }
         if (nextLine) {
             nextLine.element.before(lineElement);
+            placeWidgets();
             return;
         }
 
         this.textarea.appendChild(lineElement);
+        placeWidgets();
     }
 
-    renderAll() {
-        const doc = this.editor.doc;
-        this.textarea.innerHTML = "";
+    createLineElement(line) {
+        let lineElement = document.createElement("p");
+        if (line.decos.has("math") || line.decos.has("link")) lineElement.classList.add("hidden");
 
-        for (let i = 0; i < doc.lines; i++) this.renderLine(doc.line(i));
+        lineElement.Line = line;
+        line.assignElement(lineElement);
+
+        return lineElement;
+    }
+
+    renderAll(scrollY) {
+        const doc = this.editor.doc;
+        if (scrollY == undefined) scrollY = this.editorElement.scrollTop;
+
+        let firstLine = doc.lineAtHeight(scrollY - window.innerHeight);
+
+        for (let line of this.renderedLines) if (!isLineInViewport(line)) this.unrenderLine(line);
+        if (this.editor.elements.spacer.style.height != firstLine.verticalOffset + "px")
+            this.editor.elements.spacer.style.height = firstLine.verticalOffset + "px";
+        if (this.textarea.style.height != (doc.height - firstLine.verticalOffset) + "px")
+            this.textarea.style.height = (doc.height - firstLine.verticalOffset) + "px";
+
+
+        let i = firstLine.number, promises = [];
+        while (i < doc.lines && isLineInViewport(doc.line(i))) {
+            let line = doc.line(i);
+            if (!this.renderedLines.has(line)) {
+                let promise = this.renderLine(line);
+                if (promise !== undefined) promises.push(promise);
+            }
+            i++;
+        }
 
         requestAnimationFrame(() => this.renderInfo());
+
+        return promises;
     }
 
     async handleDM(line) {
@@ -112,6 +149,7 @@ class Render {
 
             window.MathJax._.mathjax.mathjax.handleRetriesFor(async () => { // fantastic! the right solution.
                 DM.replaceChildren(window.MathJax.tex2svg(line.text, { display: true }));
+                line.visualUpdate();
                 await window.MathJax.startup.document.outputJax.font.loadDynamicFiles(); // without this, weird glyphs are rendered in another font 
             });
         } else {
@@ -119,8 +157,10 @@ class Render {
             line.element.DM.source = line.text;
 
             window.MathJax.tex2svgPromise(line.text, { display: true }).then(node => { // render async on change
-                if (window.state.settings.renderErrors || !node.querySelector('[data-mjx-error], mjx-merror, [fill="red"], [stroke="red"]'))
+                if (window.state.settings.renderErrors || !node.querySelector('[data-mjx-error], mjx-merror, [fill="red"], [stroke="red"]')) {
                     line.element.DM.replaceChildren(node);
+                    line.visualUpdate();
+                }
             });
         }
     }
@@ -155,6 +195,9 @@ class Render {
             img.addEventListener("error", _ => {
                 img.src = `img/404.png`;
             });
+            img.addEventListener("load", _ => {
+                line.visualUpdate();
+            });
             let url = getUrl(line.text.trim());
             img.src = url.href;
             wrapper.setAttribute("url", url.attachmentUrl);
@@ -168,7 +211,19 @@ class Render {
         }
     }
 
+    unrenderLine(line) {
+        line.isRendered = false;
+        line.element?.remove();
+        line.element?.DM?.remove();
+        line.element?.imgWrapper?.remove();
+
+        line.isRendered = true;
+        this.renderedLines.delete(line);
+    }
+
     renderLine(line) {
+        if (!isLineInViewport(line)) return;
+
         let promises = [];
 
         if (line.deleted) {
@@ -181,6 +236,7 @@ class Render {
             this.createLineElement(line);
             ["text", "tabs", "deco", "marks", "caret"].forEach(e => line.unrenderedChanges.add(e));
         }
+        this.placeElement(line);
 
         let caretChanged = line.unrenderedChanges.delete("caret");
         let textChanged = line.unrenderedChanges.delete("text");
@@ -298,27 +354,35 @@ class Render {
             this.handleLink(line);
         }
 
+        line.isRendered = true;
+        line.visualUpdate();
+        this.renderedLines.add(line);
+
         requestAnimationFrame(() => this.renderInfo());
 
         if (promises.length > 0) {
             return new Promise((res, _) => {
                 Promise.all(promises).then(_ => {
-                    requestAnimationFrame(() => { res() });
+                    requestAnimationFrame(() => {
+                        res();
+                    });
                 });
             });
         }
 
         return new Promise((res, _) => {
-            requestAnimationFrame(() => { res() });
+            requestAnimationFrame(() => {
+                res();
+            });
         });
     }
 
     hideLine(line) {
-        line.element.classList.add("hidden");
+        line.element?.classList.add("hidden");
     }
 
     revealLine(line) {
-        line.element.classList.remove("hidden");
+        line.element?.classList.remove("hidden");
     }
 }
 

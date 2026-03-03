@@ -11,7 +11,6 @@ class Clipboard {
     parse(from, to) {
         if (from > to) [from, to] = [to, from];
         let text = this.editor.doc.textBetween(from, to);
-        console.log(`parsed from ${from} to ${to} text ${text}`);
         let line1 = this.editor.doc.lineAt(from), line2 = this.editor.doc.lineAt(to);
         let lines = line1 === line2 ? [line1] : [line1, ...this.editor.doc.linesBetween(line1.number, line2.number), line2];
         let decos = lines.map(e => [...e.decos]);
@@ -29,7 +28,6 @@ class Clipboard {
         else if (clipboard != undefined) this.content = JSON.parse(JSON.stringify(clipboard.content || {}));
 
         if (this.name === "window") {
-            console.log("copying to window clipboard");
             const item = new ClipboardItem({
                 "text/html": new Blob([this.convertToClipboardHTML(this.content)], { type: "text/html" }),
                 "text/plain": new Blob([this.content.text], { type: "text/plain" })
@@ -68,7 +66,6 @@ class Clipboard {
     async paste(at, content = this.content, { from, to } = {}) {
         await this.update();
 
-        console.log(`pasted at ${at}`, content);
         if (at == undefined && (from == undefined || to == undefined) || content == undefined || content.text == undefined) return;
         if (at == undefined) {
             at = from;

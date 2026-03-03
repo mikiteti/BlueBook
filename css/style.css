@@ -146,12 +146,14 @@ html.relNumbers {
     overflow-x: hidden;
     position: absolute;
     inset: 0;
+    padding-top: 10vh;
+    overflow-anchor: none;
 }
 
 .textarea {
     font-size: var(--font-size);
     max-width: var(--editor-width);
-    margin: 10vw auto 0 auto;
+    margin: 0 auto;
     white-space: pre-wrap;
     text-shadow: var(--shadow);
 }

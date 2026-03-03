@@ -40,6 +40,16 @@ class SingleCaret {
         let promises = renderLines.map(line => this.editor.render.renderLine(line));
         await Promise.all(promises);
         let line = this.position.Line;
+        if (!line.element?.isConnected) { // if line is not rendered, scroll there, render everything close to it and only then continue
+            this.editor.elements.editor.scrollTo({ top: line.verticalOffset - window.innerHeight / 2 });
+            await new Promise((res, _) => {
+                Promise.all(this.editor.render.renderAll(line.verticalOffset - window.innerHeight / 2)).then(_ => {
+                    requestAnimationFrame(() => {
+                        res();
+                    });
+                });
+            });
+        }
 
         const walker = document.createTreeWalker(line.element, NodeFilter.SHOW_TEXT);
         let column = 0;
