@@ -303,7 +303,10 @@ class State {
             }
 
             res = await fetch(URL + url, { ...body, credentials: 'include' });
-        } else if (res.status === 400) {
+        } else if (res.status === 403) {
+            this.alert("Sorry, can't do that", "This is not yours.")
+            return -1;
+        } else if (res.status >= 400) {
             let text = await res.text();
             console.log(text);
             this.alert("Error", text);
