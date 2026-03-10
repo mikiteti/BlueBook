@@ -130,7 +130,12 @@ class AttachmentEditor {
                 await window.DesmosLoaded.promise;
                 let preview;
                 await new Promise(async (res, rej) => {
-                    await this.calculator.asyncScreenshot({ format: 'svg', showLabels: true }, (svg) => {
+                    await this.calculator.asyncScreenshot({
+                        format: 'svg',
+                        showLabels: true,
+                        width: 600,
+                        height: 450
+                    }, (svg) => {
                         preview = svg;
                         res();
                     });

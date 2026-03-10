@@ -319,10 +319,13 @@ img {
     border-radius: 10px;
 }
 
-.editor .imgWrapper img {
+.editor .imgWrapper[url="undefined"] img {
     max-width: min(max(80%, 400px), 100%);
     max-height: 400px;
-    /* width: calc(4/3*400px); */
+}
+
+.editor .imgWrapper:not([url="undefined"]) img {
+    width: min(max(80%, 400px), 100%);
 }
 
 .imgWrapper.notReady img {

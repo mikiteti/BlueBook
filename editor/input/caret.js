@@ -1,5 +1,5 @@
 import { Position, Range } from "../doc/classes.js";
-import { getViewportMargins } from "../assets.js";
+import Settings from "../../state/settings.js";
 
 class SingleCaret {
     constructor(editor, position = 0, { element = this.createElement(editor), autoRender = true } = {}) {
@@ -146,8 +146,16 @@ class SingleCaret {
                 if (window.scrollAdjustmentPromise) await window.scrollAdjustmentPromise;
                 if (window.scrollByCaret) return;
                 scrollY = this.editor.elements.editor.scrollTop;
-                if (scrollY - this.screenPosition.y > -200) this.editor.elements.editor.scrollTo({ behavior: scrollBehavior, top: this.screenPosition.y - 200 });
-                else if (scrollY + window.innerHeight - this.screenPosition.y - this.screenPosition.height < 200) this.editor.elements.editor.scrollTo({ behavior: scrollBehavior, top: this.screenPosition.y + this.screenPosition.height - window.innerHeight + 200 });
+                if (scrollY - this.screenPosition.y > -Settings.caretMargin)
+                    this.editor.elements.editor.scrollTo({
+                        behavior: scrollBehavior,
+                        top: this.screenPosition.y - Settings.caretMargin
+                    });
+                else if (scrollY + window.innerHeight - this.screenPosition.y - this.screenPosition.height < Settings.caretMargin)
+                    this.editor.elements.editor.scrollTo({
+                        behavior: scrollBehavior,
+                        top: this.screenPosition.y + this.screenPosition.height - window.innerHeight + Settings.caretMargin
+                    });
                 // console.log("smooth caret scrolling");
             });
         }
