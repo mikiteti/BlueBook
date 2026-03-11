@@ -36,7 +36,8 @@ class State {
             }
 
             res.json().then(user => {
-                console.log("Logged in as:", user);
+                console.info("Logged in as:")
+                console.table(user);
                 this.user = user;
             });
         });
@@ -321,7 +322,7 @@ class State {
 
         await window.MathJax.startup.promise;
 
-        const editor = newEditor({ file: file, interactive: this.settings.interactive });
+        const editor = newEditor({ file: file, interactive: file.interactive == undefined ? this.settings.interactive : file.interactive });
         this.editors.push(editor);
         if (main) {
             this.editor = editor;
@@ -483,9 +484,11 @@ class State {
             currentFile = await this.getFile({ url: this.note_url });
         }
         if (currentFile != undefined && currentFile != -1) {
-            (json.find(e => e.url == this.note_url) == undefined)
-                ? json.push(currentFile)
-                : json[json.indexOf(json.find(e => e.url == this.note_url))] = currentFile;
+            if (currentFile.user_id != this.user?.id && this.URL.searchParams.get("mode") == "read") currentFile.interactive = false;
+            let index = json.indexOf(json.find(e => e.url == this.note_url) || {});
+            if (index == -1) {
+                json.push(currentFile);
+            } else json[index] = currentFile;
         }
 
         return json;
