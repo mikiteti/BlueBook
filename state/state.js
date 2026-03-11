@@ -484,7 +484,8 @@ class State {
             currentFile = await this.getFile({ url: this.note_url });
         }
         if (currentFile != undefined && currentFile != -1) {
-            if (currentFile.user_id != this.user?.id && this.URL.searchParams.get("mode") == "read") currentFile.interactive = false;
+            let mode = this.URL.searchParams.get("mode")
+            if (currentFile.user_id != this.user?.id && (mode == undefined || mode == "read")) currentFile.interactive = false;
             let index = json.indexOf(json.find(e => e.url == this.note_url) || {});
             if (index == -1) {
                 json.push(currentFile);
