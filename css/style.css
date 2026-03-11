@@ -119,6 +119,7 @@
 html,
 body {
     margin: 0;
+    animation: 3s spin-border-offset linear infinite;
 }
 
 html {
@@ -464,13 +465,13 @@ img {
 .wrapper .spin_border {
     --border-width: 1px;
     /* --background-color: var(--color-background-secondary); */
-    animation: 3s spin-border-offset linear infinite;
     border: 1px solid transparent;
     border-radius: 6px;
     background-image: linear-gradient(var(--color-bg), var(--color-bg)),
         conic-gradient(from var(--border-offset-angle), transparent, transparent, var(--color-accent), transparent, transparent, var(--color-accent), transparent);
     background-origin: border-box;
     background-clip: padding-box, border-box;
+    padding: 2px;
 }
 
 .wrapper:not(.editingSource) .math {

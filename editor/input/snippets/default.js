@@ -380,6 +380,20 @@ class DefaultSnippets {
             },
 
             {
+                from: /^(#+) /, to: (match) => {
+                    this.editor.doc.history.newChangeGroup();
+                    this.editor.input.caret.forAll(pos => {
+                        for (let i = 0; i < 6; i++) pos.Line.removeDeco(`h${i}`);
+                        pos.Line.addDeco(`h${match[1].length}`);
+                        this.editor.render.renderLine(pos.Line);
+                    });
+                    this.editor.input.caret.placeAllAt();
+                    this.editor.doc.history.newChangeGroup();
+
+                    return;
+                }, in: "At", description: "Headings", priority: 1,
+            },
+            {
                 from: /h([0-6]) /, to: (match) => {
                     const n = parseInt(match[1]);
                     console.log("running h", n);
@@ -426,16 +440,16 @@ class DefaultSnippets {
             },
 
             {
-                from: "dm", to: (match) => {
+                from: /^(dm)/, to: (match) => { // TODO: find out why /^dm/ doesn't work
                     this.editor.doc.history.newChangeGroup();
                     this.editor.input.caret.forAll(pos => {
-                        pos.Line.toggleDeco("math");
+                        pos.Line.addDeco("math");
                         this.editor.render.renderLine(pos.Line);
                     });
                     this.editor.input.caret.placeAllAt();
                     this.editor.doc.history.newChangeGroup();
 
-                    return;
+                    return "";
                 }, in: "At", description: "Display math", priority: 1,
             },
         ]

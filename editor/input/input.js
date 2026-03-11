@@ -1,5 +1,5 @@
 import { DefaultSnippets, DefaultSnippetVariables } from "./snippets/default.js";
-import newSnippets from "./snippets/main.js";
+import newSnippets from "./snippets/snippets.js";
 import newKeyboard from "./keyboard/keyboard.js";
 import Caret from "./caret.js"
 import { getColumnAt } from "../assets.js";

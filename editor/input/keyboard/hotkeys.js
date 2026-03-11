@@ -209,7 +209,7 @@ const createCommandSet = (editor) => {
             history.newChangeGroup();
             caret.forAll(pos => {
                 pos.Line.removeDeco(render.decos);
-                pos.Line.addDeco("subtitle");
+                pos.Line.addDeco("h2");
                 render.renderLine(pos.Line);
             });
             caret.placeAllAt();
@@ -219,7 +219,7 @@ const createCommandSet = (editor) => {
             history.newChangeGroup();
             caret.forAll(pos => {
                 pos.Line.removeDeco(render.decos);
-                pos.Line.addDeco("h2");
+                pos.Line.addDeco("h3");
                 render.renderLine(pos.Line);
             });
             caret.placeAllAt();
@@ -229,7 +229,7 @@ const createCommandSet = (editor) => {
             history.newChangeGroup();
             caret.forAll(pos => {
                 pos.Line.removeDeco(render.decos);
-                pos.Line.addDeco("h3");
+                pos.Line.addDeco("h4");
                 render.renderLine(pos.Line);
             });
             caret.placeAllAt();
@@ -239,7 +239,7 @@ const createCommandSet = (editor) => {
             history.newChangeGroup();
             caret.forAll(pos => {
                 pos.Line.removeDeco(render.decos);
-                pos.Line.addDeco("h4");
+                pos.Line.addDeco("subtitle");
                 render.renderLine(pos.Line);
             });
             caret.placeAllAt();
