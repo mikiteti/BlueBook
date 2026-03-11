@@ -290,7 +290,12 @@ const exportToMD = async (editor = window.editor) => {
     if (title) content.push(`title: ${title}`);
     let author = window.state.user?.name;
     if (author) content.push(`author: ${author}`);
-    content.push(`date: ${new Date().toISOString().slice(0, 10)}
+    let date = new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+    }).format(new Date());
+    content.push(`date: ${date}
 ---`);
 
     for (let i = 0; i < editor.doc.lines; i++) {
