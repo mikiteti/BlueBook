@@ -293,7 +293,7 @@ class Render {
             content.classList.add("content");
             let text = line.text;
             let index = 0, afterBullet;
-            if (["• ", "– ", "∘ "].includes(text.slice(0, 2))) {
+            if (["• ", "– ", "∘ ", "- "].includes(text.slice(0, 2))) {
                 index = 2;
                 let bullet = document.createElement("span");
                 bullet.classList.add("bullet");

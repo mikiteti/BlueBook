@@ -97,8 +97,8 @@
 }
 
 /* *:not(.dcg-dom-change-wrapper *) { */
-#alerts,
-#prompts,
+#alerts *,
+#prompts *,
 .editor .textarea,
 .editor .info,
 .modal {
