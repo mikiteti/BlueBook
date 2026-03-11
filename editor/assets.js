@@ -288,7 +288,7 @@ const exportToMD = async (editor = window.editor) => {
     let content = ["---"];
     let title = window.state.files.find(e => e.id == editor.fileId)?.name || editor.fileId;
     if (title) content.push(`title: ${title}`);
-    let author = window.state.user.name;
+    let author = window.state.user?.name;
     if (author) content.push(`author: ${author}`);
     content.push(`date: ${new Date().toISOString().slice(0, 10)}
 ---`);
