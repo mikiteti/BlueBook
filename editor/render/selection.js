@@ -104,7 +104,7 @@ class Selection {
                     range.elements.add(sel);
                     line.element.selection.appendChild(sel);
                     sel.style.top = rect.top - lineRect.top + "px";
-                    sel.style.left = rect.left - lineRect.left + "px";
+                    sel.style.left = `calc(${rect.left - lineRect.left}px - var(--tab-full-width) * var(--tabs))`;
                     sel.style.width = rect.width + "px";
                     sel.style.height = rect.height + "px";
                 }

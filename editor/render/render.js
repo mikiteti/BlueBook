@@ -111,7 +111,7 @@ class Render {
         for (let line of this.renderedLines) if (!isLineInViewport(line, scrollY)) this.unrenderLine(line);
         this.editor.elements.spacer.style.height = firstLine.verticalOffset + "px";
         this.textarea.style.height = (doc.height - firstLine.verticalOffset) + "px";
-        document.documentElement.style.setProperty("--firstRenderedLine", firstLine.number);
+        // document.documentElement.style.setProperty("--firstRenderedLine", firstLine.number);
 
         let i = firstLine.number, promises = [];
         while (i < doc.lines && isLineInViewport(doc.line(i), scrollY)) {
@@ -271,7 +271,6 @@ class Render {
     }
 
     renderLine(line, { scrollY } = {}) {
-        console.log("rendering line");
         if (!line.deleted && !isLineInViewport(line, scrollY)) return;
 
         let promises = [];
@@ -372,11 +371,11 @@ class Render {
         if (caretChanged) {
             let caret = this.editor?.input?.caret?.carets[0];
             if (caret !== undefined) {
-                if (caret.position.index >= line.from && caret.position.index <= line.to) {
-                    line.element.classList.add("caretInside");
-                    document.documentElement.style.setProperty("--caretLineNum", line.number + 1);
-                    line.element.setAttribute("lineNum", String(line.number + 1));
-                } else line.element.classList.remove("caretInside");
+                // if (caret.position.index >= line.from && caret.position.index <= line.to) {
+                //     line.element.classList.add("caretInside");
+                //     document.documentElement.style.setProperty("--caretLineNum", line.number + 1);
+                //     line.element.setAttribute("lineNum", String(line.number + 1));
+                // } else line.element.classList.remove("caretInside");
             }
         }
 
@@ -404,7 +403,8 @@ class Render {
         }
 
         if (line.unrenderedChanges.delete("tabs")) {
-            line.element.style.paddingLeft = `calc(${line.tabs.full} * var(--tab-full-width))`;
+            // line.element.style.paddingLeft = `calc(${line.tabs.full} * var(--tab-full-width))`;
+            line.element.style.setProperty("--tabs", line.tabs.full);
         }
 
         if (line.unrenderedChanges.delete("deco")) {

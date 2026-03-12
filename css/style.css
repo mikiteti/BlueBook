@@ -119,7 +119,7 @@
 html,
 body {
     margin: 0;
-    animation: 3s spin-border-offset linear infinite;
+    /* animation: 3s spin-border-offset linear infinite; */
 }
 
 html {
@@ -168,8 +168,10 @@ html.relNumbers {
 .textarea p {
     margin: 0;
     line-height: calc(var(--line-height) * var(--font-size));
-    padding: var(--line-padding) 0;
+    padding-top: var(--line-padding);
+    padding-bottom: var(--line-padding);
     position: relative;
+    padding-left: calc(var(--tab-full-width) * var(--tabs));
 }
 
 html.lineNumbers .textarea p,
