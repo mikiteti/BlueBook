@@ -352,7 +352,7 @@ class Line {
         this.marks = marks; // for now, while doc is not ready
         this.lines = 1;
 
-        this.unrenderedChanges = new Set(["text", "tabs", "decos", "marks"]);
+        this.unrenderedChanges = new Set(["text", "tabs", "deco", "marks"]);
         this.positions = [];
 
         this._updates = 1;

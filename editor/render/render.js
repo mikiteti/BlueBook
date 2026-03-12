@@ -126,6 +126,7 @@ class Render {
             i++;
         }
         this.viewport = { from: firstLine.number, to: i - 1 };
+        console.log("rendered all", this.viewport);
 
         requestAnimationFrame(() => this.renderInfo());
 
@@ -270,6 +271,7 @@ class Render {
     }
 
     renderLine(line, { scrollY } = {}) {
+        console.log("rendering line");
         if (!line.deleted && !isLineInViewport(line, scrollY)) return;
 
         let promises = [];
