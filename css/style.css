@@ -1,3 +1,5 @@
+@import url('https://api.fontshare.com/v2/css?f[]=crimson-pro@2&display=swap');
+
 :root {
     --color-bg: #282c34;
     --color-text: #c6d0f5;
@@ -390,14 +392,17 @@ img {
     font-weight: var(--bold-weight) !important;
 }
 
+/* TODO: decide about this */
 .italic {
     font-style: italic;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1em;
 }
 
 .highlight {
-    background: var(--color-accent);
-    color: var(--color-bg) !important;
-    /* color: var(--color-accent) !important; */
+    /* background: var(--color-accent); */
+    /* color: var(--color-bg) !important; */
+    color: var(--color-accent) !important;
 }
 
 .capital {

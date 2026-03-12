@@ -433,11 +433,11 @@ class DefaultSnippets {
             //     }, in: "At", description: "subtitle"
             // },
 
-            {
-                from: "mk", to: (match) => {
-                    this.editor.doc.toggleMark("math");
-                }, in: "At", description: "Inline math", priority: 1,
-            },
+            // {
+            //     from: "mk", to: (match) => {
+            //         this.editor.doc.toggleMark("math");
+            //     }, in: "At", description: "Inline math", priority: 1,
+            // },
 
             {
                 from: /^(dm)/, to: (match) => { // TODO: find out why /^dm/ doesn't work

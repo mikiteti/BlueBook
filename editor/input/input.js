@@ -40,7 +40,16 @@ class Input {
             this.snippets.deleteTabStops();
         });
 
+        let ignoreNextMouseMove = false;
+        window.addEventListener("focus", () => {
+            ignoreNextMouseMove = true;
+        });
+
         document.addEventListener("mousemove", (e) => {
+            if (ignoreNextMouseMove) {
+                ignoreNextMouseMove = false;
+                return;
+            }
             if (window.state.focus !== this.editor || !this.editor.interactive) return;
             if (!e.buttons || e.target.Line == undefined) return;
             e.preventDefault();
