@@ -1125,16 +1125,16 @@ const createCommandSet = (editor) => {
                         next: [
                             {
                                 name: "brackets",
-                                keys: ["(", ")", "[", "]", "{", "}", "<", ">", "f", "b"],
+                                keys: ["(", ")", "[", "]", "{", "}", "<", ">", "f", "b", "'", "\""],
                                 run: (keys) => {
-                                    let close = { "(": ")", "[": "]", "{": "}", "<": ">" },
-                                        open = { ")": "(", "]": "[", "}": "{", ">": "<" };
+                                    let close = { "(": ")", "[": "]", "{": "}", "<": ">", "'": "'", "\"": "\"" },
+                                        open = { ")": "(", "]": "[", "}": "{", ">": "<", "'": "'", "\"": "\"" };
 
                                     let start = "", end = "";
                                     if ("([{<".includes(keys[0])) {
                                         start = keys[0] + " ";
                                         end = " " + close[keys[0]];
-                                    } else if (")]}>".includes(keys[0])) {
+                                    } else if (")]}>'\"".includes(keys[0])) {
                                         start = open[keys[0]];
                                         end = keys[0];
                                     } else { // TODO: these should really be visual snippets
