@@ -10,7 +10,6 @@ class AttachmentEditor {
         this.wrapper = wrapper;
         this.isNew = isNew;
 
-        window.fullscreen = () => { this.fullscreen() };
         return this.create();
     }
 
@@ -64,7 +63,7 @@ class AttachmentEditor {
         window.state.UI.focus = window.state.UI.attachmentEditor;
         window.state.editedAttachment = this;
         window.state.UI.openModal(window.state.UI.attachmentEditor);
-        document.documentElement.requestFullscreen();
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
 
         this.calculator?.updateSettings({ expressionsCollapsed: false });
     }
@@ -89,7 +88,7 @@ class AttachmentEditor {
             this.wrapper.classList.remove("notReady");
             img.onload = undefined;
         }
-        document.exitFullscreen();
+        if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
 
         window.state.UI.closeModal();
     }
