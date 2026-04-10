@@ -435,7 +435,7 @@ const _parseHotkey = (hotkey) => {
     const winMap = {
         M: "Ctrl",   // meta → ctrl on windows
         A: "Alt",
-        C: "Ctrl",
+        C: "Win",
         S: "Shift"
     };
 
@@ -475,7 +475,7 @@ const _parseHotkey = (hotkey) => {
             ? (keyMapMac[part] || part)
             : (keyMapWin[part] || part);
 
-        result.push(key.toUpperCase());
+        result.push(key.length === 1 ? key.toUpperCase() : key);
     }
 
     return result.join("");

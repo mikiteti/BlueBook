@@ -40,7 +40,7 @@
 }
 
 .dim .IM {
-    filter: brightness(0.8);
+    /* filter: brightness(0.8); */
 }
 
 *:not(.dcg-dom-change-wrapper *) {

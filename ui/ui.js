@@ -20,6 +20,10 @@ class UI {
             else this.closeModal();
         });
 
+        document.querySelector("#closeButton").addEventListener("click", () => {
+            this.state.editedAttachment?.finishEditing();
+        });
+
         this.initFuzzyFinders().then(() => {
             console.log(this.state.note_url);
             if (this.state.note_url != undefined && this.state.files.find(e => e.url == this.state.note_url).content) {

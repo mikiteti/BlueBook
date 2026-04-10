@@ -59,7 +59,7 @@ class AttachmentEditor {
         this.wrapper.classList.add("editing");
         this.wrapper.querySelector(".editButton").innerHTML = "Done";
         let children = window.state.UI.attachmentEditor.children;
-        for (let child of children) child.style.display = "none";
+        for (let child of children) if (child.matches(".attachmentEditor")) child.style.display = "none";
         this.element.style.display = "block";
         window.state.UI.focus = window.state.UI.attachmentEditor;
         window.state.editedAttachment = this;
