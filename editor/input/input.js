@@ -13,16 +13,6 @@ class Input {
         this.keyboard = newKeyboard({ editor, layout });
         this.caret = new Caret(this.editor, { autoRender: false });
 
-        let yCoord = this.editor.elements.editor.scrollTop;
-        this.editor.elements.editor.addEventListener("scroll", (e) => {
-            let delta = Math.abs(this.editor.elements.editor.scrollTop - yCoord);
-            if (window.scrollByCaret) return;
-            if (delta > window.innerHeight / 2) {
-                this.editor.render.renderAll();
-                yCoord = this.editor.elements.editor.scrollTop;
-            }
-        });
-
         this.textarea.addEventListener("mousedown", (e) => {
             if (window.state.UI.focus !== this.editor || !this.editor.interactive) return;
             e.preventDefault(); // no selections

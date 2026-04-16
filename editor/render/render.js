@@ -26,6 +26,17 @@ class Render {
         this.selection = new Selection(editor);
 
         this.renderedLines = new Set();
+
+        // moved here instead of input, because there is no input in reader mode
+        let yCoord = this.editor.elements.editor.scrollTop;
+        this.editor.elements.editor.addEventListener("scroll", (e) => {
+            let delta = Math.abs(this.editor.elements.editor.scrollTop - yCoord);
+            if (window.scrollByCaret) return;
+            if (delta > window.innerHeight / 2) {
+                this.editor.render.renderAll();
+                yCoord = this.editor.elements.editor.scrollTop;
+            }
+        });
     }
 
     renderInfo() {
