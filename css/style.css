@@ -579,7 +579,7 @@ img {
     /* min-width: max(40vw, 300px); */
     border-radius: 20px;
     left: 50vw;
-    top: 10vw;
+    top: calc(10vw + env(safe-area-inset-top));
     transform: translate(-50%, 0);
     padding: 10px;
     padding-bottom: 0;

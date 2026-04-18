@@ -26,6 +26,23 @@ const createCommandSet = (editor) => {
         for (let c of commands) functions[c[0]](...c.slice(1));
     }
 
+    const findMatchingBracket = (text, index) => { // if open is given, search is always forwards
+        const closeBracket = { "(": ")", "{": "}", "[": "]" };
+        const openBracket = { ")": "(", "}": "{", "]": "[" };
+
+        let bracket = text[index];
+        let pair = closeBracket[bracket] || openBracket[bracket], counter = 1;
+        if (pair == undefined) return; // char not bracket
+
+        let [from, to, inc] = closeBracket[bracket] ? [index + 1, text.length - 1, 1] : [index - 1, 0, -1];
+        for (let i = from; i * inc <= to; i += inc) {
+            if (text.slice(i, i + bracket.length) === bracket) counter++;
+            else if (text.slice(i, i + pair.length) === pair) counter--;
+            if (counter === 0) return i;
+        }
+        return;
+    }
+
     const findStartOfWORD = (pos, count = 1) => {
         let line = pos.Line.number;
         let text = pos.Line.text.slice(0, pos.column);
@@ -232,6 +249,7 @@ const createCommandSet = (editor) => {
         "_": (pos) => pos.Line.from,
         "G": (pos) => doc.chars - 1,
         "gg": (pos) => 0,
+        "%": (pos) => (findMatchingBracket(pos.Line.text, pos.column) || pos.column) + pos.Line.from,
         // ...
 
         // text objects
@@ -461,7 +479,7 @@ const createCommandSet = (editor) => {
         },
         { // uncountable basic movements
             name: "uncountable basic movements",
-            keys: ["0", "$", "_", "^", "%"], // not here
+            keys: ["0", "$", "_", "^", "%"],
             run: (keys) => {
                 dispatch([["move", moves[keys[0]]]]);
             },

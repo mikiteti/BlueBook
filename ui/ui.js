@@ -157,12 +157,6 @@ class UI {
             </div>`
         ).join("");
 
-        window.addEventListener("keydown", (e) => {
-            if ([this.filePicker, this.commandPalette].includes(this.focus) && e.key === "Escape") {
-                this.closeModal();
-            }
-        });
-
         this.commandPalette.querySelector("input").addEventListener("input", (_) => {
             this.state.handleFuzzySearch(this.commandPalette);
         });
