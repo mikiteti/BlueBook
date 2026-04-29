@@ -183,7 +183,7 @@ class UI {
 
         this.filePicker.querySelector("input").addEventListener("keydown", async (e) => {
             if (e.key === "Enter" && key.metaKey(e)) {
-                await this.state.openFile(await this.createFile({ name: this.filePicker.querySelector("input").value }));
+                await this.state.openFile(await this.state.createFile({ name: this.filePicker.querySelector("input").value }));
                 this.closeModal();
             }
         });

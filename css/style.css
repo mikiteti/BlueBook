@@ -1,4 +1,5 @@
 @import url('https://api.fontshare.com/v2/css?f[]=crimson-pro@2&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap');
 /* @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap'); */
 
 :root {
@@ -253,6 +254,7 @@ html.relNumbers .textarea p.math::before {
 
 .textarea p .bullet {
     flex: 0 0 auto;
+    font-family: "Libertinus Math", system-ui;
 }
 
 .placeholder {
@@ -517,7 +519,7 @@ img {
     padding: 2px;
 }
 
-.wrapper:not(.editingSource) .math {
+wrapper:not(.editingSource) .math {
     display: none !important;
     /* height: 0; */
     /* transform: scaleY(0); */

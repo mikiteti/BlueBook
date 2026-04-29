@@ -27,8 +27,8 @@ const createCommandSet = (editor) => {
     }
 
     const findMatchingBracket = (text, index) => { // if open is given, search is always forwards
-        const closeBracket = { "(": ")", "{": "}", "[": "]" };
-        const openBracket = { ")": "(", "}": "{", "]": "[" };
+        const closeBracket = { "(": ")", "{": "}", "[": "]", "<": ">" };
+        const openBracket = { ")": "(", "}": "{", "]": "[", ">": "<" };
 
         let bracket = text[index];
         let pair = closeBracket[bracket] || openBracket[bracket], counter = 1;
