@@ -519,7 +519,7 @@ img {
     padding: 2px;
 }
 
-wrapper:not(.editingSource) .math {
+.wrapper:not(.editingSource) .math {
     display: none !important;
     /* height: 0; */
     /* transform: scaleY(0); */
