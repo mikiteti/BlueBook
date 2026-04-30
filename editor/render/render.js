@@ -124,6 +124,7 @@ class Render {
         let firstLine = doc.lineAtHeight(scrollY - getViewportMargins());
 
         for (let line of this.renderedLines) if (!isLineInViewport(line, scrollY)) this.unrenderLine(line);
+        this.editor.elements.spacer.setAttribute("height", firstLine.verticalOffset);
         this.editor.elements.spacer.style.height = firstLine.verticalOffset + "px";
         this.textarea.style.height = (doc.height - firstLine.verticalOffset) + "px";
         // document.documentElement.style.setProperty("--firstRenderedLine", firstLine.number);
@@ -289,6 +290,9 @@ class Render {
         if (!line.deleted && !isLineInViewport(line, scrollY)) return;
 
         let promises = [];
+        queueMicrotask(() => {
+            this.editor.doc.height; // height recalculation
+        });
 
         if (line.deleted) {
             if (line.element?.DM) line.element.DM.remove();

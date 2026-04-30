@@ -171,6 +171,7 @@ defineVisualSmartProperties(Node, {
     height: function(obj) {
         let height = 0;
         for (let child of obj.children) height += child.height;
+        if (height !== obj._lastheight && obj.heightChangeCallback) obj.heightChangeCallback();
         return height;
     },
 });
@@ -196,6 +197,17 @@ class Doc extends Node {
         this.change = newChange({ editor: this.editor });
         this.size = { min: 0, max: Infinity };
         this.trackedPositions = 0;
+    }
+
+    heightChangeCallback() {
+        let now = new Date().getTime();
+        if (this.heightChangeCallbackTimer && now - this.heightChangeCallbackTimer < 100) return;
+
+        this.heightChangeCallbackTimer = now;
+        queueMicrotask(() => {
+            this.editor.elements.textarea.style.height = (this.height - this.editor.elements.spacer.getAttribute("height")) + "px";
+            console.log("updating window height");
+        });
     }
 
     parseMarks() {
