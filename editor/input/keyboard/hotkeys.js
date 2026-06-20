@@ -13,7 +13,7 @@ const createCommandSet = (editor) => {
         return window.state.commands.find(e => e.hotkey == keyName || Array.isArray(e.hotkey) && e.hotkey?.includes(keyName))?.run;
     }
 
-    return command;
+    return { run: command };
 }
 
 export { createCommandSet };

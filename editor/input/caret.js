@@ -168,6 +168,7 @@ class SingleCaret {
         this.fixedEnd.caret = this;
         this.range = new Range(this.editor, this.position, this.fixedEnd);
         this.editor.render.selection.addRange(this.range);
+        this.editor.input.keyboard.changeState({ fixedEnd: true }, { fixedEnd: false });
     }
 
     removeFixedEnd() {
@@ -177,6 +178,7 @@ class SingleCaret {
         this.fixedEnd.delete();
         this.fixedEnd = undefined;
         this.range = undefined;
+        this.editor.input.keyboard.changeState({ fixedEnd: false }, { fixedEnd: true });
     }
 
     switchEnds() {

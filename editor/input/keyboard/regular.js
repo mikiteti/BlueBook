@@ -163,7 +163,7 @@ const createCommandSet = (editor) => {
         return commands[keyName];
     }
 
-    return command;
+    return { run: command };
 }
 
 export { createCommandSet };

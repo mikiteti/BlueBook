@@ -21,9 +21,13 @@ class Keyboard {
 
     command(e) {
         for (let commandSet of this.commandSets) {
-            let maybeCommand = commandSet(e);
+            let maybeCommand = commandSet.run(e);
             if (maybeCommand) return maybeCommand;
         }
+    }
+
+    changeState(newState, oldState) {
+        for (let commandSet of this.commandSets) if (commandSet.changeState) commandSet.changeState(newState, oldState);
     }
 }
 

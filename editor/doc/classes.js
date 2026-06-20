@@ -280,6 +280,7 @@ class Doc extends Node {
     }
 
     linesBetween(line1, line2) { // ends excluded
+        if (line1 > line2) [line1, line2] = [line2, line1];
         let lines = [];
         for (let i = line1 + 1; i < line2; i++) lines.push(this.line(i));
         return lines;

@@ -6,6 +6,7 @@ class DefaultSnippets {
             { from: ";a", to: "• ", in: "tA" },
             { from: ";s", to: "– ", in: "tA" },
             { from: ";d", to: "∘ ", in: "tA" },
+            { from: ";n", to: "∅ ", in: "tA" },
             { from: "=>", to: "⇒ ", in: "tA" },
             { from: "->", to: "→ ", in: "tA" }, // →
             { from: "<=", to: "⇐ ", in: "tA" },
@@ -90,7 +91,7 @@ class DefaultSnippets {
             // {from: "sts", to: "_\\text{${0}}", in: "mA"},
 
             { from: "sq", to: "\\sqrt{${0}}${1}", in: "mA" },
-            { from: "dsq", to: "\\sqrt[${0}]{${1}}${2}", in: "mA", priority: 1 },
+            { from: "dsq", to: "\\sqrt[${0:3}]{${1}}${2}", in: "mA", priority: 1 },
             { from: "//", to: "\\frac{${0}}{${1}}${2}", in: "mA" },
             { from: "ee", to: "e^{ ${0} }${1}", in: "mA" },
             { from: "conj", to: "^{*}${0}", in: "mA" },
@@ -259,10 +260,14 @@ class DefaultSnippets {
             { from: "dag", to: "^{\\dagger}", in: "mA" },
             { from: "o+", to: "\\oplus ", in: "mA" },
             { from: "ox", to: "\\otimes ", in: "mA" },
-            { from: "bra", to: "\\bra{${0}}${1}", in: "mA" },
-            { from: "ket", to: "\\ket{${0}}${1}", in: "mA" },
-            { from: "brk", to: "\\braket{${0}|${1}}${2}", in: "mA" },
-            { from: "outer", to: "\\ket{${0:\\psi}} \\bra{${0:\\psi}} ${1}", in: "mA" },
+            // { from: "bra", to: "\\bra{${0}}${1}", in: "mA" },
+            // { from: "ket", to: "\\ket{${0}}${1}", in: "mA" },
+            // { from: "brk", to: "\\braket{${0}|${1}}${2}", in: "mA" },
+            // { from: "outer", to: "\\ket{${0:\\psi}} \\bra{${0:\\psi}} ${1}", in: "mA" },
+            { from: "bra", to: "\\left<${0:\\psi}\\right|${1}", in: "mA" },
+            { from: "ket", to: "\\left|${0:\\psi}\\right>${1}", in: "mA" },
+            { from: "brk", to: "\\left<${0:\\psi}\\middle|${1:\\psi}\\right>${2}", in: "mA" },
+            { from: "outer", to: "\\left|${0:\\psi}\\right> \\left<${1:\\psi}\\right| ${1}", in: "mA" },
 
             // Environments
             { from: "pmat", to: "\\begin{pmatrix}${0}\\end{pmatrix}${1}", in: "mA" },
@@ -440,7 +445,7 @@ class DefaultSnippets {
             // },
 
             {
-                from: /^(dm)/, to: (match) => { // TODO: find out why /^dm/ doesn't work
+                from: /^(dm)/, to: (match) => {
                     this.editor.doc.history.newChangeGroup();
                     this.editor.input.caret.forAll(pos => {
                         pos.Line.addDeco("math");
