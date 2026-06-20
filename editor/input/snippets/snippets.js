@@ -119,7 +119,7 @@ class Snippets {
 
             if (index !== undefined) {
                 if (newChangeGroup) this.editor.doc.history?.newChangeGroup();
-                console.log({ to });
+                // console.log({ to });
                 this.editor.doc.change.noCallback({ insert: to, from: index, to: at });
                 for (let t of tabstops) for (let i in t.positions) t.positions[i] += index;
                 return tabstops;
