@@ -1,4 +1,5 @@
 import Environment from "../environment.js";
+import preamble from "./preamble.js";
 
 const nodeSizes = {
     leaf: { min: 16, initial: 32, max: 64 },
@@ -284,6 +285,207 @@ const getDataUri = async (link) => {
     return canvas.toDataURL("image/png");
 }
 
+const exportToHTML = async (editor = window.editor) => {
+    let content = ["<head>"];
+    let title = window.state.files.find(e => e.id == editor.fileId)?.name || editor.fileId;
+    if (title) content.push(`<title>${title}</title>`);
+    let author = window.state.user?.name;
+    if (author) content.push(`<meta name="author" content="${author}">`);
+    let date = new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+    }).format(new Date());
+    content.push(`<meta name="date" content="${date}">`, `</head>`, `<body>`);
+
+    for (let i = 0; i < editor.doc.lines; i++) {
+        let line = editor.doc.line(i), text = line.text;
+        let lineElementTags = ["<p>", "</p>"], lineElementClasses = [];
+
+        if (["•", "–", "∘"].includes(text.charAt(0))) {
+            text = "- " + text.slice(2);
+        }
+
+        let decos = line.decos;
+        let markSigns = {
+            math: ["<span class=\"math\">", "</span>"],
+            italic: ["<i>", "</i>"],
+            bold: ["<b>", "</b>"],
+            underline: ["<u>", "</u>"],
+        }
+        let marks = line.marks.sort((a, b) => a.from.index - b.from.index).map(e => [e.start.column, e.end.column, e.role]);
+        let offset = 0;
+        for (let mark of marks) {
+            if (markSigns[mark[2]] == undefined) continue;
+            if (mark[0] == mark[1]) continue;
+            text = text.slice(0, mark[0] + offset)
+                + markSigns[mark[2]][0]
+                + text.slice(mark[0] + offset, mark[1] + offset)
+                + markSigns[mark[2]][1]
+                + text.slice(mark[1] + offset);
+            offset += markSigns[mark[2]][0].length + markSigns[mark[2]][1].length;
+        }
+
+        // if (decos.has("math") && text.trim() !== "") text = "\\[" + text + "\\]";
+        if (decos.has("math")) lineElementClasses.push("math", "display");
+
+        for (let j = 1; j < 6; j++) if (decos.has(`h${j}`)) {
+            lineElementTags = [`<h${j}>`, `</h${j}>`];
+            break;
+        }
+
+        for (let lineDeco of ["underline", "bold", "italic"]) if (decos.has(lineDeco)) lineElementClasses.push(lineDeco);
+
+        // else if (decos.has("link")) {
+        //     let url = encodeURIComponent(getUrl(line.text.trim()).href);
+        //     text = "![](" + (Environment.url + `proxy-image?url=${url}`) + ")";
+        //     insertEmptyLineInFront = true;
+        //     text += "\n";
+        // }
+
+        for (let j = 0; j < line.tabs.full || 0; j++) text = "\t" + text;
+
+        if (lineElementClasses.length > 0)
+            lineElementTags[0] = lineElementTags[0].slice(0, -1) + ` class="${lineElementClasses.join(" ")}">`;
+        text = lineElementTags.join(text);
+
+        content.push(text);
+    }
+
+    content.push(`</body>`);
+    content = content.join("\n");
+    content = content.replaceAll("⇒", " \\(\\implies\\) ");
+    content = content.replaceAll("→", " \\(\\rightarrow\\) ");
+    content = content.replaceAll("⇐", " \\(\\Leftarrow\\) ");
+    content = content.replaceAll("←", " \\(\\leftarrow\\) ");
+    content = content.replaceAll("⇔", " \\(\\Longleftrightarrow\\) ");
+    content = content.replaceAll("↔", " \\(\\longleftrightarrow\\) ");
+    content = content.replaceAll("↦", " \\(\\mapsto\\) ");
+    content = content.replaceAll("↤", " \\(\\mapsfrom\\) ");
+
+    console.log(content);
+    return content;
+}
+window.exportToHTML = exportToHTML;
+
+const hashURL = (url) => {
+    let hash = 5381; // classic starting seed (DJB2)
+
+    for (let i = 0; i < url.length; i++) {
+        hash = ((hash << 5) + hash) + url.charCodeAt(i); // hash * 33 + c
+        hash = hash >>> 0; // force unsigned 32-bit
+    }
+
+    // reduce to 8 digits (0–99,999,999)
+    return hash % 100000000;
+}
+
+const exportToLaTeX = async (editor = window.editor) => {
+    let content = ["\n\\documentclass{article}", preamble];
+    let title = window.state.files.find(e => e.id == editor.fileId)?.name || editor.fileId;
+    if (title) content.push(`\\title{${title}}`);
+    let author = window.state.user?.name;
+    if (author) content.push(`\\author{${author}}`);
+    let date = new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+    }).format(new Date());
+    content.push(
+        `\\date{${date}}`,
+        `\\begin{document}`,
+        `\\maketitle`
+    );
+
+    for (let i = 0; i < editor.doc.lines; i++) {
+        let line = editor.doc.line(i), text = line.text;
+        if (text.length == 0) continue;
+        let prevLine = i - 1 >= 0 ? editor.doc.line(i - 1) : undefined, nextLine = i + 1 < editor.doc.lines ? editor.doc.line(i + 1) : undefined;
+        let insertLineBefore, insertLineAfter, insertLineBreakAfter = true;
+
+        let offset = 0;
+        if (["•", "–", "∘"].includes(text.charAt(0))) {
+            let firstChar = text.charAt(0);
+            text = "\\item " + text.slice(2);
+            // insertLineBreakAfter = false;
+            offset = 4;
+            if (!prevLine || prevLine.text.charAt(0) != firstChar) insertLineBefore = `\\begin{itemize}[label=${firstChar}]`;
+            if (!nextLine || nextLine.text.charAt(0) != firstChar) insertLineAfter = `\\end{itemize}`;
+        }
+
+        let decos = line.decos;
+        let markSigns = {
+            math: ["\\(", "\\)"],
+            italic: ["\\textit{", "}"],
+            bold: ["\\textbf{", "}"],
+            underline: ["\\underline{", "}"],
+        }
+        let marks = line.marks.sort((a, b) => a.from.index - b.from.index).map(e => [e.start.column, e.end.column, e.role]);
+        for (let mark of marks) {
+            if (markSigns[mark[2]] == undefined) continue;
+            if (mark[0] == mark[1]) continue;
+            text = text.slice(0, mark[0] + offset)
+                + markSigns[mark[2]][0]
+                + text.slice(mark[0] + offset, mark[1] + offset)
+                + markSigns[mark[2]][1]
+                + text.slice(mark[1] + offset);
+            offset += markSigns[mark[2]][0].length + markSigns[mark[2]][1].length;
+        }
+
+        let decoNames = { "underline": ["\\underline{", "}"], "bold": ["\\textbf{", "}"], "italic": ["\\textit{", "}"] };
+        for (let deco in decoNames) if (line.decos.has(deco)) text = decoNames[deco].join(text);
+
+        if (decos.has("math") && text.trim() !== "") text = "\\[" + text + "\\]";
+        let headingNames = ["section", "subsection", "subsubsection", "paragraph", "subparagraph"];
+
+        for (let j = 1; j < 5; j++) if (line.decos.has(`h${j}`)) {
+            text = `\\${headingNames[j - 1]}{` + text + "}";
+            break;
+        }
+
+        if (decos.has("link")) {
+            let url0 = getUrl(line.text.trim());
+            // let url = encodeURIComponent(url0.href);
+            let url = url0.href;
+            for (let char of "%_&#{}") url = url.replaceAll(char, `\\${char}`);
+            let isSvg = window.location.hostname == url0.hostname;
+            let name = isSvg ? `${url0.attachmentUrl}.svg` : `asset${hashURL(url)}.${url0.pathname.split(".").at(-1)}`;
+            // let name = isSvg ? `${url0.attachmentUrl}.svg` : `asset.${url0.pathname.split(".").at(-1)}`;
+            let download = `\\immediate\\write18{curl -o ${name} ${url}}`;
+            console.log({ isSvg, url, url0, download });
+            let link = `\\noindent\\hfill
+${isSvg ? `\\includesvg[width=0.6\\textwidth]{${name}}` : `\\includegraphics[width=0.6\\textwidth]{${name}}`}
+\\hfill\\mbox{}`;
+            // ${isSvg ? `\\includesvg[width=0.6\\textwidth]{${name}}` : `\\includegraphics[width=0.6\\textwidth]{${name}}`}
+            text = download + "\n" + link;
+        }
+
+        for (let j = 0; j < line.tabs.full || 0; j++) text = "\\indent " + text;
+        if (insertLineBefore) text = insertLineBefore + "\n" + text;
+        if (insertLineAfter) text = text + "\n" + insertLineAfter;
+        if (insertLineBreakAfter) text += "\n";
+
+        content.push(text);
+    }
+
+    content.push("\\end{document}");
+
+    content = content.join("\n");
+    content = content.replaceAll("⇒", " $\\implies$ ");
+    content = content.replaceAll("→", " $\\rightarrow$ ");
+    content = content.replaceAll("⇐", " $\\Leftarrow$ ");
+    content = content.replaceAll("←", " $\\leftarrow$ ");
+    content = content.replaceAll("⇔", " $\\Longleftrightarrow$ ");
+    content = content.replaceAll("↔", " $\\longleftrightarrow$ ");
+    content = content.replaceAll("↦", " $\\mapsto$ ");
+    content = content.replaceAll("↤", " $\\mapsfrom$ ");
+
+    console.log(content);
+    navigator.clipboard.writeText(content);
+    return content;
+}
+window.exportToLaTeX = exportToLaTeX;
+
 const exportToMD = async (editor = window.editor) => {
     let content = ["---"];
     let title = window.state.files.find(e => e.id == editor.fileId)?.name || editor.fileId;
@@ -317,6 +519,7 @@ const exportToMD = async (editor = window.editor) => {
             math: ["$", "$"],
             italic: ["*", "*"],
             bold: ["**", "**"],
+            underline: ["<u>", "</u>"],
         }
         let marks = line.marks.sort((a, b) => a.from.index - b.from.index).map(e => [e.start.column, e.end.column, e.role]);
         let offset = 0;
@@ -342,6 +545,7 @@ const exportToMD = async (editor = window.editor) => {
         else if (decos.has("h4")) text = "#### " + text;
         else if (decos.has("h5")) text = "##### " + text;
         else if (decos.has("h6")) text = "###### " + text;
+        else if (decos.has("underline")) text = "<u>" + text + "</u>";
         else if (decos.has("subtitle")) text = "\\begin{subtitle}" + text + "\\end{subtitle}";
         else if (decos.has("link")) {
             let url = encodeURIComponent(getUrl(line.text.trim()).href);
@@ -489,4 +693,4 @@ const parseHotkey = (hotkey) => {
     return Array.isArray(hotkey) ? hotkey.map(e => _parseHotkey(e)).join(", ") : _parseHotkey(hotkey);
 }
 
-export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport, getViewportMargins, nodeInLineAtColumn, snapshotCarets, parseHotkey };
+export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport, getViewportMargins, nodeInLineAtColumn, snapshotCarets, parseHotkey, exportToHTML, exportToLaTeX };

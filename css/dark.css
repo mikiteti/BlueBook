@@ -113,8 +113,8 @@
 }
 
 .h4 {
-    font-size: calc(var(--font-size) * 1.15) !important;
-    line-height: calc(var(--font-size) * 1.4) !important;
+    /* font-size: calc(var(--font-size) * 1.15) !important; */
+    /* line-height: calc(var(--font-size) * 1.4) !important; */
     font-weight: var(--bold-weight);
 }
 

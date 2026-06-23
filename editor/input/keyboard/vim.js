@@ -770,7 +770,11 @@ const createCommandSet = editor => {
             keys: ["h", "j", "k", "l", "w", "e", "b", "W", "E", "B", "{", "}"],
             run: (keys, { count = 1 } = {}) => {
                 let key = keys[0];
-                if (["w", "W"].includes(key)) dispatch([["move", array(moves[key](count))], ["move", array(moves["h"](1))]]);
+                if (["w", "W"].includes(key))
+                    dispatch([
+                        ["move", array(moves[key](count))],
+                        ["move", array(moves["h"](1))]
+                    ]);
                 else dispatch([["move", array(moves[key](count))]]);
             }
         },
@@ -1590,9 +1594,9 @@ const createCommandSet = editor => {
             render.renderInfo();
         },
         changeState: (newState, oldState) => {
-            if (newState.fixedEnd && !["v", "vLine"].includes(curMode)) return functions.mode("v");
+            if (newState.fixedEnd && !["v", "vLine", "i"].includes(curMode)) return functions.mode("v"); // when selection appears in insert mode, let's pretend regular keyboard -- works for highlights with mouse and for snippets
             if (newState.fixedEnd != undefined && !newState.fixedEnd && ["v", "vLine"].includes(curMode)) return functions.mode("n");
-        },
+        }
     };
 };
 
