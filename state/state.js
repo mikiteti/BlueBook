@@ -247,57 +247,29 @@ class State {
             } else json[index] = currentFile;
         }
 
+        this.files = json;
         return json;
     }
 
-    fuzzyFind(string = "", array) {
-        string = string.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-
-        return array
-            .map(e => {
-                const name = e.name.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-                let score = 0;
-                if (name === string) score += 10;
-                else if (name.startsWith(string)) score += 5;
-
-                let index = 0;
-                for (const char of string) {
-                    let lastIndex = index;
-                    index = name.indexOf(char, index);
-                    if (index === -1) {
-                        score = 0;
-                        break;
-                    }
-                    index++;
-                    score += lastIndex === 0 ? 1 : 1 / (index - lastIndex);
-                }
-
-                return { item: e, score };
-            })
-            .filter(r => r.score > 0) // only matches
-            .sort((a, b) => b.score - a.score)
-            .map(e => e.item);
-    }
-
-    handleFuzzySearch(modal = this.UI.filePicker, array = modal.entries) {
-        let matches = this.fuzzyFind(modal.querySelector("input").value, array).map(e => e.id);
-        let entries = modal.querySelector(".list").children;
-        let activeDone = false;
-        for (let el of entries) {
-            el.classList.remove("active");
-            el.classList.add("nodisplay");
-        }
-        for (let m of matches) {
-            let el = modal.querySelector(`.list [item-id="${m}"]`);
-            if (el == undefined) continue;
-            el.classList.remove("nodisplay");
-            modal.querySelector(".list").appendChild(el);
-            if (!activeDone && matches.includes(parseInt(el.getAttribute("item-id")) || el.getAttribute("item-id"))) {
-                el.classList.add("active");
-                activeDone = true;
-            }
-        }
-    }
+    // handleFuzzySearch(modal = this.UI.filePicker, array = modal.entries) {
+    //     let matches = this.fuzzyFind(modal.querySelector("input").value, array).map(e => e.id);
+    //     let entries = modal.querySelector(".list").children;
+    //     let activeDone = false;
+    //     for (let el of entries) {
+    //         el.classList.remove("active");
+    //         el.classList.add("nodisplay");
+    //     }
+    //     for (let m of matches) {
+    //         let el = modal.querySelector(`.list [item-id="${m}"]`);
+    //         if (el == undefined) continue;
+    //         el.classList.remove("nodisplay");
+    //         modal.querySelector(".list").appendChild(el);
+    //         if (!activeDone && matches.includes(parseInt(el.getAttribute("item-id")) || el.getAttribute("item-id"))) {
+    //             el.classList.add("active");
+    //             activeDone = true;
+    //         }
+    //     }
+    // }
 
     async reload(elements = ["files", "user", "currentFile"]) {
         if (elements.includes("user")) {
@@ -312,11 +284,7 @@ class State {
             document.querySelector("main").innerHTML = "";
         }
 
-        if (elements.includes("files")) {
-            this.files = await this.getFiles();
-            this.UI.filePicker.entries = this.files.filter(e => !e.misc?.deleted);
-            this.UI.filePicker.querySelector(".list").innerHTML = this.UI.filePicker.entries.concat(this.systemFiles).map(e => `<div item-id="${e.id}">${e.name}</div>`).join("");
-        }
+        if (elements.includes("files")) this.files = await this.getFiles();
 
         if (elements.includes("currentFile")) {
             let files = this.files.concat(this.systemFiles).filter(e => !e.misc?.deleted);

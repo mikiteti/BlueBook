@@ -694,4 +694,34 @@ const parseHotkey = (hotkey) => {
     return Array.isArray(hotkey) ? hotkey.map(e => _parseHotkey(e)).join(", ") : _parseHotkey(hotkey);
 }
 
-export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport, getViewportMargins, nodeInLineAtColumn, snapshotCarets, parseHotkey, exportToHTML, exportToLaTeX };
+const fuzzyFind = (string = "", array) => {
+    string = string.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+
+    return array
+        .map(e => {
+            const name = e.name.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+            let score = 0;
+            if (string[0] !== "." && name[0] === ".") return { item: e, score }; // match systemfiles only if query starts with "."
+            if (name === string) score += 10;
+            else if (name.startsWith(string)) score += 5;
+
+            let index = 0;
+            for (const char of string) {
+                let lastIndex = index;
+                index = name.indexOf(char, index);
+                if (index === -1) {
+                    score = 0;
+                    break;
+                }
+                index++;
+                score += lastIndex === 0 ? 1 : 1 / (index - lastIndex);
+            }
+
+            return { item: e, score };
+        })
+        .filter(r => r.score > 0) // only matches
+        .sort((a, b) => b.score - a.score)
+        .map(e => e.item);
+}
+
+export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport, getViewportMargins, nodeInLineAtColumn, snapshotCarets, parseHotkey, exportToHTML, exportToLaTeX, fuzzyFind };

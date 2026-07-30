@@ -775,6 +775,18 @@ const createCommandSet = editor => {
                         ["move", array(moves[key](count))],
                         ["move", array(moves["h"](1))]
                     ]);
+                else if (key == "k") {
+                    dispatch([
+                        ["move", array(moves[key](count))],
+                        ["move", moves["vLine"]],
+                    ]);
+                }
+                else if (key == "j") {
+                    dispatch([
+                        ["move", array(moves[key](count))],
+                        ["move", moves["vLine"]],
+                    ]);
+                }
                 else dispatch([["move", array(moves[key](count))]]);
             }
         },

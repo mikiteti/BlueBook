@@ -155,7 +155,7 @@ const newCommands = (state) => {
                 }).catch(console.error);
                 vars.UI.alert("Exported", "Your file has been copied to your clipboard");
             },
-            hotkey: "M+e",
+            // hotkey: "M+e",
         },
         {
             name: "Reload file",

@@ -1,100 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="noisy">
+    <head>
+        <title>BlueBook</title>
 
-<head>
-    <title>BlueBook</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/dark.css" />
+        <!-- <link rel="stylesheet" href="css/light.css"> -->
+        <link rel="icon" type="image/png" href="img/shadow.png" />
+        <link rel="apple-touch-icon" href="img/shadow.png" />
 
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dark.css">
-    <!-- <link rel="stylesheet" href="css/light.css"> -->
-    <link rel="icon" type="image/png" href="img/shadow.png">
-    <link rel="apple-touch-icon" href="img/shadow.png">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="BlueBook" />
+        <meta name="format-detection" content="telephone=no" />
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BlueBook">
-    <meta name="format-detection" content="telephone=no">
-
-    <script>
-        window.MathJax = {
-            loader: {load: ['input/tex', 'output/svg']},
-            tex: {
-                packages: ['base', 'ams'],
-                inlineMath: [["$", "$"]],
-                macros: {
-                    si: ["\\,\\mathrm{#1}", 1],
-                    SI: ["#1 \\, \\mathrm{#2}", 2],
+        <script>
+            window.MathJax = {
+                loader: {load: ['input/tex', 'output/svg']},
+                tex: {
+                    packages: ['base', 'ams'],
+                    inlineMath: [["$", "$"]],
+                    macros: {
+                        si: ["\\,\\mathrm{#1}", 1],
+                        SI: ["#1 \\, \\mathrm{#2}", 2],
+                    },
                 },
-            },
-            output: {
-                // font: 'mathjax-fira' // |s are too thick
-                font: 'mathjax-stix2' // man... it's complicated.
-                // font: 'mathjax-pagella'
-                // font: 'mathjax-termes'
-                // font: 'mathjax-asana'
-                // font: 'mathjax-newcm'
-                // font: 'mathjax-dejavu'
-                // font: 'mathjax-modern'
-                // font: 'mathjax-schola'
-                // font: 'mathjax-tex'
-                // font: 'mathjax-bonum'
-            },
-            svg: {fontCache: 'global'},
-            options: {
-                renderActions: {
-                    addMenu: [],
-                    assistiveMml: [],
-                    explorer: []
+                output: {
+                    // font: 'mathjax-fira' // |s are too thick
+                    font: 'mathjax-stix2' // man... it's complicated.
+                    // font: 'mathjax-pagella'
+                    // font: 'mathjax-termes'
+                    // font: 'mathjax-asana'
+                    // font: 'mathjax-newcm'
+                    // font: 'mathjax-dejavu'
+                    // font: 'mathjax-modern'
+                    // font: 'mathjax-schola'
+                    // font: 'mathjax-tex'
+                    // font: 'mathjax-bonum'
+                },
+                svg: {fontCache: 'global'},
+                options: {
+                    renderActions: {
+                        addMenu: [],
+                        assistiveMml: [],
+                        explorer: []
+                    }
                 }
-            }
-        };
-
-
-        window.DesmosLoaded = {};
-        window.DesmosLoaded.promise = new Promise((res, rej) => {
-            window.DesmosLoaded.resolve = () => {
-                console.log("Desmos Loaded");
-                window.Desmos = Desmos;
-                res();
             };
-            window.DesmosLoaded.reject = () => {rej()};
-        });
-    </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/startup.js"></script>
-    <script defer src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=c6b271b52633435b8d5ee676896fc567"
-        onload="window.DesmosLoaded.resolve()"></script>
-</head>
 
-<body>
-    <input
-        style="position: fixed; width: 0; height: 0; border: none; outline: none; background-color: transparent; font-size: 32px; caret-color: transparent"
-        type="text" id="focus" value="Focus" autocapitalize="off" />
 
-    <main></main>
+            window.DesmosLoaded = {};
+            window.DesmosLoaded.promise = new Promise((res, rej) => {
+                window.DesmosLoaded.resolve = () => {
+                    console.log("Desmos Loaded");
+                    window.Desmos = Desmos;
+                    res();
+                };
+                window.DesmosLoaded.reject = () => {rej()};
+            });
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/startup.js"></script>
+        <script defer src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=c6b271b52633435b8d5ee676896fc567" onload="window.DesmosLoaded.resolve()"></script>
+    </head>
 
-    <div id="modalBg"></div>
-    <div id="commandPalette" class="modal">
-        <input class="fuzzyFinder" type="text" placeholder="Search and execute commands" />
-        <div class="list"></div>
-    </div>
-    <div id="filePicker" class="modal">
-        <input class="fuzzyFinder" type="text" placeholder="Find or create notes..." />
-        <div class="list"></div>
-    </div>
-    <div id="attachments" class="modal"> </div>
-    <div id="attachmentEditor" class="fullscreen modal">
-        <div id="closeButton">Save and Exit</div>
-    </div>
+    <body>
+        <input style="position: fixed; width: 0; height: 0; border: none; outline: none; background-color: transparent; font-size: 32px; caret-color: transparent" type="text" id="focus" value="Focus" autocapitalize="off" />
 
-    <div id="alerts"></div>
-    <div id="prompts"></div>
+        <main></main>
 
-    <script>
-        window.MathJax = MathJax;
-    </script>
-    <script type="module" src="state/state.js"></script>
-</body>
+        <div id="modalBg"></div>
+        <div id="fuzzyFinder" class="modal">
+            <input class="fuzzyFinder" type="text" />
+            <div class="top"></div>
+            <div class="list"></div>
+            <div class="bottom"></div>
+        </div>
 
+        <div id="attachments" class="modal"></div>
+        <div id="attachmentEditor" class="fullscreen modal">
+            <div id="closeButton">Save and Exit</div>
+        </div>
+
+        <div id="alerts"></div>
+        <div id="prompts"></div>
+
+        <script>
+            window.MathJax = MathJax;
+        </script>
+        <script type="module" src="state/state.js"></script>
+    </body>
 </html>

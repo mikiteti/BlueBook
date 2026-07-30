@@ -1,14 +1,14 @@
 import { getUrl, key, parseHotkey, saveState } from "../editor/assets.js";
 import newCommands from "../state/commands.js";
 import AttachmentEditor from "../state/editAttachments.js";
+import initFuzzyFinders from "./fuzzyFinders.js";
 
 class UI {
     constructor(state = window.state) {
         this.state = state;
         window.UI = this;
 
-        this.commandPalette = document.querySelector("#commandPalette");
-        this.filePicker = document.querySelector("#filePicker");
+        this.fuzzyFinder = document.querySelector("#fuzzyFinder");
         this.attachments = document.querySelector("#attachments");
         this.attachmentEditor = document.querySelector("#attachmentEditor");
         this.modalBg = document.querySelector("#modalBg");
@@ -24,7 +24,10 @@ class UI {
             this.state.editedAttachment?.finishEditing();
         });
 
-        this.initFuzzyFinders().then(() => {
+        this.state.commands = newCommands(this.state).map((e, f) => ({ ...e, id: f + 1 }));
+        this.state.getFiles().then(() => {
+            this.fuzzyFinders = initFuzzyFinders(this.state);
+
             console.log(this.state.note_url);
             if (this.state.note_url != undefined && this.state.files.find(e => e.url == this.state.note_url).content) {
                 console.log({ note_url: this.state.note_url });
@@ -93,15 +96,20 @@ class UI {
                 this.focus.querySelector(".submit").click();
             }
 
-            if (key.metaKey(e) && ["o", "p"].includes(e.key)) {
+            if (key.metaKey(e) && ["o", "p", "e"].includes(e.key)) {
                 if (e.key === "o") {
                     e.preventDefault();
-                    this.openModal(this.filePicker);
+                    this.fuzzyFinders.filePicker.open();
                     return;
                 }
                 if (e.key === "p") {
                     e.preventDefault();
-                    this.openModal(this.commandPalette);
+                    this.fuzzyFinders.commandPalette.open();
+                    return;
+                }
+                if (e.key === "e") {
+                    e.preventDefault();
+                    this.fuzzyFinders.fileExplorer.open();
                     return;
                 }
             }
@@ -142,94 +150,6 @@ class UI {
         });
     }
 
-    async initFuzzyFinders() {
-        this.state.files = await this.state.getFiles();
-        this.filePicker.entries = this.state.files.filter(e => !e.misc?.deleted);
-        this.filePicker.querySelector(".list").innerHTML = this.filePicker.entries.concat(this.state.systemFiles).map(e => `<div item-id="${e.id}">${e.name}</div>`).join("");
-        this.state.commands = newCommands(this.state).map((e, f) => ({ ...e, id: f + 1 }));
-        this.commandPalette.entries = this.state.commands;
-        this.commandPalette.querySelector(".list").innerHTML = this.commandPalette.entries.map(e =>
-            `<div class="item" item-id="${e.id}">
-                <span>${e.name.includes(":")
-                ? `<span class="">${e.name.slice(0, e.name.indexOf(":") + 1)}</span><span>${e.name.slice(e.name.indexOf(":") + 1)}</span>`
-                : e.name}</span>
-                ${e.hotkey ? `<span class="hotkey">${parseHotkey(e.hotkey)}</span>` : ``}
-            </div>`
-        ).join("");
-
-        this.commandPalette.querySelector("input").addEventListener("input", (_) => {
-            this.state.handleFuzzySearch(this.commandPalette);
-        });
-
-        this.filePicker.querySelector("input").addEventListener("input", (_) => {
-            if (this.filePicker.querySelector("input").value.startsWith(".")) {
-                this.state.handleFuzzySearch(this.filePicker, this.state.systemFiles);
-            }
-            else this.state.handleFuzzySearch(this.filePicker);
-        });
-
-        this.commandPalette.addEventListener("click", async e => {
-            if (!e.target.matches(".list div")) return;
-            console.log(this.state.commands, e.target);
-            this.closeModal();
-            this.state.runCommand(this.state.commands.find(f => f.id == parseInt(e.target.getAttribute("item-id"))));
-        });
-
-        this.filePicker.addEventListener("click", async e => {
-            if (!e.target.matches(".list div")) return;
-            await this.state.openFile({ id: parseInt(e.target.getAttribute("item-id")) || e.target.getAttribute("item-id") });
-            this.closeModal();
-        });
-
-        this.filePicker.querySelector("input").addEventListener("keydown", async (e) => {
-            if (e.key === "Enter" && key.metaKey(e)) {
-                await this.state.openFile(await this.state.createFile({ name: this.filePicker.querySelector("input").value }));
-                this.closeModal();
-            }
-        });
-
-        let addHotkeys = (element) => {
-            element.querySelector("input").addEventListener("keydown", async (e) => {
-                if (e.key === "Escape") {
-                    this.closeModal();
-                    document.getElementById("focus").focus();
-                    return;
-                }
-
-                if (e.key === "Enter") {
-                    if (!key.metaKey(e)) element.querySelector(".list div.active").click();
-
-                    return;
-                }
-
-                if (!key.metaKey(e)) return;
-                if (e.key === "j") {
-                    e.preventDefault();
-                    let displayed = element.querySelectorAll(".list div:not(.nodisplay)");
-                    for (let i = 0; i < displayed.length; i++) {
-                        if (i < displayed.length - 1 && displayed[i].classList.contains("active")) {
-                            displayed[i].classList.remove("active");
-                            displayed[i + 1].classList.add("active");
-                            return;
-                        }
-                    }
-                } if (e.key === "k") {
-                    e.preventDefault();
-                    let displayed = element.querySelectorAll(".list div:not(.nodisplay)");
-                    for (let i = 0; i < displayed.length; i++) {
-                        if (i > 0 && displayed[i].classList.contains("active")) {
-                            displayed[i].classList.remove("active");
-                            displayed[i - 1].classList.add("active");
-                            return;
-                        }
-                    }
-                }
-            });
-        }
-        addHotkeys(this.commandPalette);
-        addHotkeys(this.filePicker);
-    }
-
     async openModal(modal) {
         if (this.focus?.isConnected && this.focus?.matches(".modal")) await this.closeModal();
 
@@ -246,11 +166,7 @@ class UI {
 
         this.focus = modal;
         let input = modal.querySelector("input");
-        if (input) {
-            input.focus();
-            input.value = "";
-            this.state.handleFuzzySearch(modal);
-        }
+        if (input) input.focus();
     }
 
     async closeModal() {
