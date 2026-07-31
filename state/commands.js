@@ -31,7 +31,7 @@ const newCommands = (state) => {
             vars.doc.change.insert("\nview/" + url, caret.position.Line.to);
         }
 
-        state.attachments.innerHTML = "";
+        state.UI.attachments.innerHTML = "";
 
         vars.doc.line(lineNum).addDeco("link");
         requestAnimationFrame(() => {
@@ -72,7 +72,7 @@ const newCommands = (state) => {
         {
             name: "Create user",
             run: async () => {
-                let [email, name, password] = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", { Email: 1, Name: 1, Password: 1 });
+                let [email, name, password] = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", { Email: "john@doe.com", Name: "John Doe", Password: "Secret123" });
                 let res = await state.sendRequest("new_user", {
                     method: 'POST',
                     body: JSON.stringify({ email, name, password }),
@@ -126,7 +126,7 @@ const newCommands = (state) => {
         {
             name: "Rename file",
             run: async () => {
-                let [name] = await vars.UI.prompt("Rename file", 'Input the new filename', { "Filename": 1 });
+                let [name] = await vars.UI.prompt("Rename file", 'Input the new filename', { "Filename": state.files.find(e => e.id == vars.editor.fileId)?.name || "" });
                 let res = await state.sendRequest("update_note", {
                     method: 'POST',
                     body: JSON.stringify({ id: vars.editor.fileId, name }),
@@ -420,12 +420,12 @@ const newCommands = (state) => {
         },
         {
             name: "Format Selection: Toggle Border",
-            hotkey: "M+w",
+            // hotkey: "M+w",
             run: () => { toggleMark("spin_border") }
         },
         {
             name: "Format Line: Toggle Border",
-            hotkey: "M+S+w",
+            // hotkey: "M+S+w",
             run: () => { toggleDeco("spin_border") }
         },
         {

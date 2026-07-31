@@ -263,62 +263,34 @@ const createCommandSet = editor => {
         "safety": pos => Math.min(pos.index, pos.Line.to - (caret.style === "bar" || pos.Line.chars === 1 ? 0 : 1)),
 
         // motions
-        "h":
-            (count = 1) =>
-                pos =>
-                    Math.max(pos.index - count, pos.Line.from),
-        "l":
-            (count = 1) =>
-                pos =>
-                    Math.min(pos.index + count, pos.Line.to - 1),
-        "h!":
-            (count = 1) =>
-                pos =>
-                    pos.index - count,
-        "l!":
-            (count = 1) =>
-                pos =>
-                    pos.index + count,
-        "b":
-            (count = 1) =>
-                pos => {
-                    return findStartOfWord(parsePosition(pos.index - 1), count);
-                },
-        "w":
-            (count = 1) =>
-                pos => {
-                    return findStartOfWord(parsePosition(findEndOfWord(pos, (blank.includes(doc.charAt(pos.index)) ? 0 : 1) + count)), 1);
-                },
-        "e":
-            (count = 1) =>
-                pos => {
-                    return findEndOfWord(parsePosition(pos.index + 1), count);
-                }, // idk why, but this works...
-        "B":
-            (count = 1) =>
-                pos => {
-                    return findStartOfWORD(parsePosition(pos.index - 1), count);
-                },
-        "W":
-            (count = 1) =>
-                pos => {
-                    return findStartOfWORD(parsePosition(findEndOfWORD(pos, (blank.includes(doc.charAt(pos.index)) ? 0 : 1) + count)), 1);
-                },
-        "E":
-            (count = 1) =>
-                pos => {
-                    return findEndOfWORD(parsePosition(pos.index + 2), count);
-                }, // ...and this does too...
-        "j":
-            (count = 1) =>
-                pos => {
-                    return curMode === "vLine" ? doc.line(pos.Line.number + count).to : findNextVisualLine(pos, count);
-                },
-        "k":
-            (count = 1) =>
-                pos => {
-                    return curMode === "vLine" ? doc.line(pos.Line.number - count).from : findPreviousVisualLine(pos, count);
-                },
+        "h": (count = 1) => pos => Math.max(pos.index - count, pos.Line.from),
+        "l": (count = 1) => pos => Math.min(pos.index + count, pos.Line.to - 1),
+        "h!": (count = 1) => pos => pos.index - count,
+        "l!": (count = 1) => pos => pos.index + count,
+        "b": (count = 1) => pos => {
+            return findStartOfWord(parsePosition(pos.index - 1), count);
+        },
+        "w": (count = 1) => pos => {
+            return findStartOfWord(parsePosition(findEndOfWord(pos, (blank.includes(doc.charAt(pos.index)) ? 0 : 1) + count)), 1);
+        },
+        "e": (count = 1) => pos => {
+            return findEndOfWord(parsePosition(pos.index + 1), count);
+        }, // idk why, but this works...
+        "B": (count = 1) => pos => {
+            return findStartOfWORD(parsePosition(pos.index - 1), count);
+        },
+        "W": (count = 1) => pos => {
+            return findStartOfWORD(parsePosition(findEndOfWORD(pos, (blank.includes(doc.charAt(pos.index)) ? 0 : 1) + count)), 1);
+        },
+        "E": (count = 1) => pos => {
+            return findEndOfWORD(parsePosition(pos.index + 2), count);
+        }, // ...and this does too...
+        "j": (count = 1) => pos => {
+            return curMode === "vLine" ? doc.line(pos.Line.number + count).to : findNextVisualLine(pos, count);
+        },
+        "k": (count = 1) => pos => {
+            return curMode === "vLine" ? doc.line(pos.Line.number - count).from : findPreviousVisualLine(pos, count);
+        },
         "$": pos => pos.Line.to - 1,
         "0": pos => pos.Line.from,
         "_": pos => pos.Line.from,
@@ -404,8 +376,10 @@ const createCommandSet = editor => {
                     sc.placeAt(newPos, { keepFixedEnd: ["v", "vLine"].includes(curMode), updateScreenX }); // curMode check is experimental
                 else if (newPos.length === 1) sc.placeAt(newPos[0], { keepFixedEnd: true, updateScreenX });
                 else {
-                    sc.removeFixedEnd();
-                    sc.addFixedEnd(newPos[0]);
+                    if (sc.fixedEnd?.index != newPos[0]) {
+                        sc.removeFixedEnd();
+                        sc.addFixedEnd(newPos[0]);
+                    }
                     sc.placeAt(newPos[1], { keepFixedEnd: true, updateScreenX });
                 }
             }

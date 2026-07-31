@@ -225,7 +225,8 @@ class UI {
         let element = document.createElement("div");
         element.classList.add("prompt");
         let innerHTML = `<div class="title">${title}</div><div class="description">${description}</div><div class="grid">`;
-        for (let field in fields) innerHTML += `<label for="${field}">${field}</label><input type="text" id="${field}" name="${field}">`;
+        console.log(fields);
+        for (let field in fields) innerHTML += `<label for="${field}">${field}</label><input type="text" id="${field}" name="${field}" placeholder="${fields[field] || ""}">`;
         innerHTML += "</div>";
         element.innerHTML = innerHTML;
         let submit = document.createElement("div");

@@ -607,7 +607,6 @@ img {
 }
 
 .modal .list {
-    border-radius: 10px;
     padding: 5px;
     overflow-y: auto;
     flex: 1;
@@ -791,4 +790,23 @@ img {
 
 .nodisplay {
     display: none;
+}
+
+#fuzzyFinder .bottom:has(*),
+#fuzzyFinder .top:has(*) {
+    padding: 10px 15px;
+    font-size: calc(0.9 * var(--font-size));
+}
+
+.navigationButton {
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.navigationButton:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navigationButton:active {
+    background-color: rgba(0, 0, 0, 0.5);
 }

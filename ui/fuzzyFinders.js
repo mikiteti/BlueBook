@@ -1,7 +1,15 @@
 import { parseHotkey, key, fuzzyFind } from "../editor/assets.js";
 
 class FuzzyFinder {
-    constructor({ state, placeholder, getEntries, convertEntryToHTML, onClick } = {}) {
+    constructor({
+        state,
+        placeholder,
+        getEntries,
+        convertEntryToHTML,
+        onClick,
+        fillTop = function() { this.element.querySelector(".top").innerHTML = "" },
+        fillBottom = function() { this.element.querySelector(".bottom").innerHTML = "" },
+    } = {}) {
         this.state = state;
         this.placeholder = placeholder;
         this.getEntries = () => {
@@ -11,27 +19,27 @@ class FuzzyFinder {
         this.convertEntryToHTML = convertEntryToHTML;
         this.onClick = onClick;
         this.element = state.UI.fuzzyFinder;
+        this.fillTop = fillTop.bind(this);
+        this.fillBottom = fillBottom.bind(this);
+    }
+
+    loadContent() {
+        this.element.querySelector("input").placeholder = this.placeholder;
+        this.element.querySelector("input").value = "";
+        this.element.querySelector("input").focus();
+        this.element.querySelector(".list").innerHTML = this.getEntries()
+            .map(e => this.convertEntryToHTML(e))
+            .join("");
+        this.fillTop();
+        this.fillBottom();
+        this.state.UI.fuzzyFinders.handleFuzzySearch();
     }
 
     async open() {
         this.state.UI.currentModal = this;
-        this.element.querySelector("input").placeholder = this.placeholder;
-        this.element.querySelector("input").value = "";
-        this.element.querySelector(".list").innerHTML = this.getEntries()
-            .map(e => this.convertEntryToHTML(e))
-            .join("");
-        this.state.UI.fuzzyFinders.handleFuzzySearch();
+        this.loadContent();
 
         this.state.UI.openModal(this.element);
-    }
-
-    reload() {
-        this.element.querySelector("input").placeholder = this.placeholder;
-        this.element.querySelector("input").value = "";
-        this.element.querySelector(".list").innerHTML = this.getEntries()
-            .map(e => this.convertEntryToHTML(e))
-            .join("");
-        this.state.UI.fuzzyFinders.handleFuzzySearch();
     }
 
     close() {
@@ -99,12 +107,33 @@ const initFuzzyFinders = state => {
         onClick: async entry => {
             if (entry.type === "folder") {
                 state.pwd += entry.name;
-                fileExplorer.reload();
+                fileExplorer.loadContent();
                 return;
             }
 
             await state.openFile({ id: entry.id });
             closeModal();
+        },
+        fillTop: function() {
+            this.element.querySelector(".top").innerHTML = "";
+            let pwd = state.pwd;
+            if (pwd == undefined || pwd == "") return;
+
+            this.element.querySelector(".top").innerHTML = "Path: ";
+            let folders = pwd.split("/").map(e => e + "/").slice(0, -1);
+            let dir = "";
+            for (let folder of folders) {
+                let el = document.createElement("span");
+                el.classList.add("navigationButton");
+                el.innerHTML = folder;
+                dir += folder;
+                el.setAttribute("target", dir);
+                el.addEventListener("click", (e) => {
+                    state.pwd = e.target.getAttribute("target");
+                    this.loadContent();
+                });
+                this.element.querySelector(".top").appendChild(el);
+            }
         }
     });
 
@@ -134,7 +163,6 @@ const initFuzzyFinders = state => {
         if (!e.target.matches(".list div")) return;
 
         let selectedEntry = state.UI.currentModal.entries.find(f => f.id == e.target.getAttribute("item-id"));
-        console.log(selectedEntry, state.UI.currentModal, state.UI.currentModal.entries, e.target.getAttribute("item-id"));
         state.UI.currentModal.onClick(selectedEntry);
     });
 
@@ -151,8 +179,8 @@ const initFuzzyFinders = state => {
             return;
         }
 
-        if (!key.metaKey(e)) return;
-        if (e.key === "j") {
+        if (!key.metaKey(e) && !["ArrowUp", "ArrowDown"].includes(e.key)) return;
+        if (["ArrowDown", "j"].includes(e.key)) {
             e.preventDefault();
             let displayed = state.UI.fuzzyFinder.querySelectorAll(".list div:not(.nodisplay)");
             for (let i = 0; i < displayed.length; i++) {
@@ -163,7 +191,7 @@ const initFuzzyFinders = state => {
                 }
             }
         }
-        if (e.key === "k") {
+        if (["ArrowUp", "k"].includes(e.key)) {
             e.preventDefault();
             let displayed = state.UI.fuzzyFinder.querySelectorAll(".list div:not(.nodisplay)");
             for (let i = 0; i < displayed.length; i++) {
