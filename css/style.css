@@ -1,5 +1,39 @@
-@import url('https://api.fontshare.com/v2/css?f[]=crimson-pro@2&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap');
+/* @import url('https://api.fontshare.com/v2/css?f[]=crimson-pro@2&display=swap'); */
+
+/* Crimson Pro */
+@font-face {
+    font-family: 'Crimson Pro';
+    src: url('../fonts/CrimsonPro/CrimsonPro.woff2') format('woff2'),
+        url('../fonts/CrimsonPro/CrimsonPro.woff') format('woff'),
+        url('../fonts/CrimsonPro/CrimsonPro.ttf') format('truetype');
+    font-weight: 200 900;
+    font-display: swap;
+    font-style: italic;
+}
+
+/* @import url('https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap'); */
+
+/* Libertinus Math */
+@font-face {
+    font-family: 'Libertinus Math';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/LibertinusMath/LibertinusMath.woff2') format('woff2');
+}
+
+/* Author -- TODO */
+/* @font-face { */
+/*   font-family: 'Author'; */
+/*   src: url('//cdn.fontshare.com/wf/J3IKMZZZ53F75WBIOJVUHEVKJKYNOXXF/UK6TMU4KDUOBA2TQL35OYZWT4CNBGRHR/JP2S43GCZFWRA6HO554DNBR74NVQDKCI.woff2') format('woff2'), */
+/*        url('//cdn.fontshare.com/wf/J3IKMZZZ53F75WBIOJVUHEVKJKYNOXXF/UK6TMU4KDUOBA2TQL35OYZWT4CNBGRHR/JP2S43GCZFWRA6HO554DNBR74NVQDKCI.woff') format('woff'), */
+/*        url('//cdn.fontshare.com/wf/J3IKMZZZ53F75WBIOJVUHEVKJKYNOXXF/UK6TMU4KDUOBA2TQL35OYZWT4CNBGRHR/JP2S43GCZFWRA6HO554DNBR74NVQDKCI.ttf') format('truetype'); */
+/*   font-weight: 200 700; */
+/*   font-display: swap; */
+/*   font-style: italic; */
+/* } */
+
+
 /* @import url('https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap'); */
 /* @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap'); */
 

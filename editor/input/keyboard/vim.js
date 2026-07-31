@@ -297,6 +297,22 @@ const createCommandSet = editor => {
         "G": pos => doc.chars - 1,
         "gg": pos => 0,
         "%": pos => (findMatchingBracket(pos.Line.text, pos.column) || pos.column) + pos.Line.from,
+        "{": (count = 1) => pos => {
+            let n = pos.Line.number - (pos.Line.text.trim == "" ? 1 : 0);
+            for (let i = 0; i < count; i++) {
+                while (n >= 0 && doc.line(n).text.trim() == "") n--;
+                while (n >= 0 && doc.line(n).text.trim() != "") n--;
+            }
+            return doc.line(n).from;
+        },
+        "}": (count = 1) => pos => {
+            let n = pos.Line.number + (pos.Line.text.trim == "" ? 1 : 0);
+            for (let i = 0; i < count; i++) {
+                while (n <= doc.lines - 1 && doc.line(n).text.trim() == "") n++;
+                while (n <= doc.lines - 1 && doc.line(n).text.trim() != "") n++;
+            }
+            return doc.line(n).to;
+        },
         // ...
 
         // text objects
