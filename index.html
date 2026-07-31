@@ -29,7 +29,7 @@
                 },
                 output: {
                     // font: 'mathjax-fira' // |s are too thick
-                    font: 'mathjax-stix2' // man... it's complicated.
+                    font: 'mathjax-stix2', // man... it's complicated.
                     // font: 'mathjax-pagella'
                     // font: 'mathjax-termes'
                     // font: 'mathjax-asana'
@@ -39,6 +39,7 @@
                     // font: 'mathjax-schola'
                     // font: 'mathjax-tex'
                     // font: 'mathjax-bonum'
+                    fontPath: 'assets/mathjax/mathjax-stix2-font',
                 },
                 svg: {fontCache: 'global'},
                 options: {
@@ -61,7 +62,8 @@
                 window.DesmosLoaded.reject = () => {rej()};
             });
         </script>
-        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/startup.js"></script>
+        <!-- <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/startup.js"></script> -->
+        <script defer src="assets/mathjax/startup.js"></script>
         <!-- <script defer src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=c6b271b52633435b8d5ee676896fc567" onload="window.DesmosLoaded.resolve()"></script> -->
         <script defer src="assets/desmos.js" onload="window.DesmosLoaded.resolve()"></script>
     </head>

@@ -116,7 +116,7 @@ class State {
     async newEditor(file, { main = true } = {}) {
         console.log("creating new editor", file);
 
-        await window.MathJax.startup.promise;
+        await window.MathJax?.startup?.promise;
 
         const editor = newEditor({ file: file, interactive: file.interactive == undefined ? this.settings.interactive : file.interactive });
         this.editors.push(editor);
