@@ -157,7 +157,7 @@
     /* font-family: var(--font-face); */
 }
 
-html {
+html * {
     font-family: var(--font-face);
 }
 
@@ -311,7 +311,7 @@ html.relNumbers .textarea p.math::before {
     transition: left 0.1s, top 0.1s, width 0.1s, height 0.1s;
 }
 
-.info {
+.editor .info {
     background-color: var(--color-bg);
     font-size: 16pt;
     position: fixed;
@@ -624,7 +624,7 @@ img {
     overflow-y: hidden;
 }
 
-.modal input {
+.modal input:not(.modal .list input) {
     background: transparent;
     outline: none;
     border: none;
@@ -826,21 +826,77 @@ img {
     display: none;
 }
 
+.contentButton {
+    /* button that has no background color, only text */
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: scale 0.2s, background-color 0.2s;
+    scale: 1;
+}
+
+.contentButton:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.contentButton:active {
+    background-color: rgba(0, 0, 0, 0.5);
+    scale: 0.8;
+}
+
 #fuzzyFinder .bottom:has(*),
 #fuzzyFinder .top:has(*) {
     padding: 10px 15px;
     font-size: calc(0.9 * var(--font-size));
+    color: var(--color-text-unsaturated);
+}
+
+#fuzzyFinder .top:has(*) {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+#fuzzyFinder .list [item-id] * {
+    pointer-events: none !important;
 }
 
 .navigationButton {
-    cursor: pointer;
-    border-radius: 2px;
+    padding: 0.1rem 0.3rem;
+    margin: 0 -0.2rem;
 }
 
-.navigationButton:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+#fuzzyFinder .list .info {
+    font-size: calc(0.7 * var(--font-size));
+    color: var(--color-text-unsaturated);
+    display: block;
 }
 
-.navigationButton:active {
-    background-color: rgba(0, 0, 0, 0.5);
+#fuzzyFinder .list {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#fuzzyFinder .actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+#fuzzyFinder .actions .contentButton {
+    padding: 0.3rem;
+}
+
+.modal .list input {
+    border: none;
+    margin: 0;
+    background-color: transparent;
+    outline: none;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    width: 100%;
+}
+
+.icon-tabler {
+    vertical-align: top;
+    width: 1em;
+    height: 1em;
 }

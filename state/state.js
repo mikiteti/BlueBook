@@ -213,15 +213,26 @@ class State {
     async saveFile(editor = this.editor) {
         let content = JSON.stringify(exportFile(editor));
 
+        let misc = {
+            size: { c: editor.doc.chars, w: editor.doc.words, l: editor.doc.lines },
+            last_modified: Date.now(),
+        };
+        if (!window.state?.files?.find(e => e.id == editor.fileId)?.misc?.created) misc.created = Date.now();
+
+        let localFile = this.files.find(e => e.id == editor.fileId);
+        if (localFile && localFile.misc) localFile.misc = { ...localFile.misc, ...misc };
+        else if (localFile) localFile.misc = misc;
+
         let res = await this.sendRequest("update_note", {
             method: 'POST',
-            body: JSON.stringify({ id: editor.fileId, content }),
+            body: JSON.stringify({ id: editor.fileId, content, misc: JSON.stringify(misc) }),
             headers: { "Content-Type": "application/json" }
         });
         if (res === -1) return;
         let text = await res.text();
         console.log(text);
         this.UI.alert("Saved", "Your file is now safe and sound");
+
         return text;
     }
 
@@ -284,7 +295,7 @@ class State {
             document.querySelector("main").innerHTML = "";
         }
 
-        if (elements.includes("files")) this.files = await this.getFiles();
+        if (elements.includes("files")) await this.getFiles();
 
         if (elements.includes("currentFile")) {
             let files = this.files.concat(this.systemFiles).filter(e => !e.misc?.deleted);
@@ -292,6 +303,19 @@ class State {
             if (lastEditor === undefined) this.openFile(this.systemFiles.find(e => e.id === "welcome"));
             else this.openFile(files.find(e => e.id === lastEditor.fileId));
         }
+    }
+
+    async restoreFile(id) {
+        let res = await this.sendRequest("update_note", {
+            method: 'POST',
+            body: JSON.stringify({ id, misc: JSON.stringify({ deleted: false }) }),
+            headers: { "Content-Type": "application/json" }
+        });
+        let text = await res.text();
+        console.log(text);
+
+        this.reload(["files", "currentFile"]);
+        return text;
     }
 }
 

@@ -91,7 +91,7 @@ const newCommands = (state) => {
             name: "Login",
             run: async (email, password) => {
                 if (email == undefined || password == undefined) [email, password] =
-                    await vars.UI.prompt("Login", 'Input your email and password to log in', { "Email": 1, "Password": 1 });
+                    await vars.UI.prompt("Login", 'Input your email and password to log in', { "Email": "john@doe.com", "Password": "Secret123" });
                 console.log(email, password);
                 localStorage.setItem('email', email);
                 localStorage.setItem('password', password);
@@ -109,11 +109,21 @@ const newCommands = (state) => {
             }
         },
         {
+            name: "Restore deleted file",
+            codename: "restore_note",
+            run: () => {
+                state.UI.fuzzyFinders.fileRestorer.open();
+            }
+        },
+        {
             name: "Delete file",
-            run: async () => {
+            codename: "delete_note",
+            run: async (id) => {
+                if (id == undefined) id = vars.editor.fileId;
+
                 let res = await state.sendRequest("update_note", {
                     method: 'POST',
-                    body: JSON.stringify({ id: vars.editor.fileId, misc: JSON.stringify({ deleted: true }) }),
+                    body: JSON.stringify({ id, misc: JSON.stringify({ deleted: true }) }),
                     headers: { "Content-Type": "application/json" }
                 });
                 let text = await res.text();
@@ -166,7 +176,7 @@ const newCommands = (state) => {
         {
             name: "Create file",
             run: async () => {
-                let [fileName] = await vars.UI.prompt("Create file", "Input the filename in the box below", { Filename: 1 });
+                let [fileName] = await vars.UI.prompt("Create file", "Input the filename in the box below", { Filename: "My new file" });
 
                 await state.openFile(await state.createFile({ name: fileName }));
                 vars.UI.focusEditor();
