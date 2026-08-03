@@ -14,11 +14,11 @@ class FuzzyFinder {
         this.state = state;
         this.placeholder = placeholder;
         this.getEntries = async () => {
-            this.entries = await getEntries();
+            this.entries = await getEntries.bind(this)();
             return this.entries;
         };
         this.convertEntryToHTML = convertEntryToHTML;
-        this.onClick = onClick;
+        this.onClick = onClick.bind(this);
         this.onActiveChange = () => {
             this.active = [...state.UI.fuzzyFinder.querySelectorAll(".list > div.active:not(.nodisplay)")]
                 .map(e => state.UI.currentModal.entries.find(f => f.id == e.getAttribute("item-id")));
@@ -64,9 +64,11 @@ const initFuzzyFinders = state => {
     const filePicker = new FuzzyFinder({
         state,
         placeholder: "Find or create notes...",
-        getEntries: () => state.files?.filter(e => !e.misc?.deleted).sort((e, f) => e.name.localeCompare(f.name)).concat(state.systemFiles),
+        getEntries: function() {
+            return state.files?.filter(e => !e.misc?.deleted).sort((e, f) => e.name.localeCompare(f.name)).concat(state.systemFiles)
+        },
         convertEntryToHTML: e => `<div item-id="${e.id}">${e.name}</div>`,
-        onClick: async entry => {
+        onClick: async function(entry) {
             await state.openFile({ id: entry.id });
             closeModal();
         }
@@ -75,13 +77,13 @@ const initFuzzyFinders = state => {
     const commandPalette = new FuzzyFinder({
         state,
         placeholder: "Search and execute commands",
-        getEntries: () => state.commands,
+        getEntries: function() { return state.commands },
         convertEntryToHTML: e =>
             `<div class="item" item-id="${e.id}">
                 <span>${e.name.includes(":") ? `<span class="">${e.name.slice(0, e.name.indexOf(":") + 1)}</span><span>${e.name.slice(e.name.indexOf(":") + 1)}</span>` : e.name}</span>
                 ${e.hotkey ? `<span class="hotkey">${parseHotkey(e.hotkey)}</span>` : ``}
             </div>`,
-        onClick: entry => {
+        onClick: function(entry) {
             closeModal();
             state.runCommand(entry);
         }
@@ -91,7 +93,7 @@ const initFuzzyFinders = state => {
     const fileExplorer = new FuzzyFinder({
         state,
         placeholder: "Search for stuff in this folder",
-        getEntries: () => {
+        getEntries: function() {
             if (state.files == undefined) return [];
             let pwd = state.pwd || "";
             let filesInPwd = state.files.filter(e => !e.misc?.deleted && e.name.startsWith(pwd));
@@ -112,7 +114,7 @@ const initFuzzyFinders = state => {
                 .filter(e => e.name.slice(pwd.length).indexOf("/") == -1)
                 .map(e => ({ id: e.id, name: e.name.slice(pwd.length).split("/")[0] }));
 
-            return [...folders, ...files];
+            return this.mode == "move" ? [...folders] : [...folders, ...files];
         },
         convertEntryToHTML: e => {
             if (e.type === "folder") {
@@ -135,7 +137,7 @@ const initFuzzyFinders = state => {
                 <span class="info">${info}</span>
             </div>`;
         },
-        onClick: async entry => {
+        onClick: async function(entry) {
             if (entry.type === "folder") {
                 state.pwd += entry.name;
                 fileExplorer.loadContent();
@@ -146,12 +148,54 @@ const initFuzzyFinders = state => {
             closeModal();
         },
         fillTop: function() {
+            if (this.mode == "move") {
+                this.element.querySelector(".top").innerHTML = `<div class="actions">
+                    <div class="contentButton cancel" style="color: var(--color-red)">Cancel</div>
+                    <div class="contentButton move" style="color: var(--color-green)">Move here</div>
+                </div>`;
+
+                this.element.querySelector(".top .cancel").addEventListener("click", _ => {
+                    this.mode = "normal";
+                    this.selected = undefined;
+                    this.loadContent();
+                });
+
+                this.element.querySelector(".top .move").addEventListener("click", async _ => {
+                    let promises = [];
+                    let pwd = state.pwd;
+                    for (let sel of this.selected?.entries) {
+                        if (sel.type == "folder") for (let file of sel.files) {
+                            promises.push(state.sendRequest("update_note", {
+                                method: 'POST',
+                                body: JSON.stringify({ id: file.id, name: pwd + file.name.slice(this.selected.pwd.length) }),
+                                headers: { "Content-Type": "application/json" }
+                            }));
+                        } else {
+                            promises.push(state.sendRequest("update_note", {
+                                method: 'POST',
+                                body: JSON.stringify({ id: sel.id, name: pwd + sel.name }),
+                                headers: { "Content-Type": "application/json" }
+                            }));
+                        }
+                    }
+
+                    await Promise.all(promises);
+
+                    this.mode = "normal";
+                    this.selection = undefined;
+                    await state.reload(["files"]);
+                    this.loadContent();
+                });
+
+                return;
+            }
+
             this.element.querySelector(".top").innerHTML = `<div class="actions">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left contentButton goback">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M15 6l-6 6l6 6" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-folder-symlink contentButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-folder-symlink contentButton move">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M3 21v-4a3 3 0 0 1 3 -3h5" />
                     <path d="M8 17l3 -3l-3 -3" />
@@ -175,6 +219,15 @@ const initFuzzyFinders = state => {
 
             this.element.querySelector(".top .goback").addEventListener("click", (e) => {
                 if (state.pwd) state.pwd = state.pwd.slice(0, state.pwd.slice(0, -1).lastIndexOf("/") + 1);
+                this.loadContent();
+            });
+
+            this.element.querySelector(".top .move").addEventListener("click", (e) => {
+                let active = this.active;
+                if (!active) return;
+
+                this.selected = { pwd: state.pwd, entries: [...this.active] };
+                this.mode = "move";
                 this.loadContent();
             });
 
@@ -211,7 +264,7 @@ const initFuzzyFinders = state => {
         fillBottom: function() {
             this.element.querySelector(".bottom").innerHTML = `<div style="display: flex; flex-wrap: wrap"></div>`;
             let pwd = state.pwd;
-            if (pwd == undefined || pwd == "") return;
+            if (pwd == undefined || pwd == "" && this.mode != "move") return;
 
             this.element.querySelector(".bottom div").innerHTML = `<span class='contentButton navigationButton'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-home">
@@ -221,7 +274,7 @@ const initFuzzyFinders = state => {
                     <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
                 </svg>/
             </span>`;
-            this.element.querySelector(".bottom div span.navigationButton").addEventListener("click", (e) => {
+            this.element.querySelector(".bottom div span.navigationButton").addEventListener("click", _ => {
                 state.pwd = "";
                 this.loadContent();
             });
@@ -246,9 +299,11 @@ const initFuzzyFinders = state => {
     const fileRestorer = new FuzzyFinder({
         state,
         placeholder: "Restore files here",
-        getEntries: () => state.files?.filter(e => e.misc?.deleted).sort((e, f) => e.name.localeCompare(f.name)),
+        getEntries: function() {
+            return state.files?.filter(e => e.misc?.deleted).sort((e, f) => e.name.localeCompare(f.name))
+        },
         convertEntryToHTML: e => `<div item-id="${e.id}">${e.name}</div>`,
-        onClick: async entry => {
+        onClick: async function(entry) {
             await state.restoreFile(entry.id);
             await state.reload(["files"]);
             fileRestorer.loadContent();
@@ -263,7 +318,7 @@ const initFuzzyFinders = state => {
     const attachments = new FuzzyFinder({
         state,
         placeholder: "Find your attachments here",
-        getEntries: async () => { // shouldn't be async
+        getEntries: async function() {
             let res = await state.sendRequest("attachments", { credentials: 'include' });
             if (res == -1) return [];
             let attachments = (await res.json()).map(e => ({ ...e, name: e.url }));
@@ -271,7 +326,7 @@ const initFuzzyFinders = state => {
             return attachments;
         },
         convertEntryToHTML: e => `<div item-id="${e.id}">${e.name}</div>`,
-        onClick: entry => {
+        onClick: function(entry) {
             navigator.clipboard.writeText("view/" + entry.url);
             state.UI.alert("Copied", "The link to the attachment is on your clipboard");
             closeModal();
@@ -312,8 +367,13 @@ const initFuzzyFinders = state => {
     state.UI.fuzzyFinder.addEventListener("click", async e => {
         if (!e.target.matches(".list div")) return;
 
-        let selectedEntry = state.UI.currentModal.entries.find(f => f.id == e.target.getAttribute("item-id"));
-        state.UI.currentModal.onClick(selectedEntry);
+        if (!e.metaKey) {
+            let selectedEntry = state.UI.currentModal.entries.find(f => f.id == e.target.getAttribute("item-id"));
+            state.UI.currentModal.onClick(selectedEntry);
+        } else {
+            e.target.classList.toggle("active");
+            state.UI.currentModal.onActiveChange();
+        }
     });
 
     state.UI.fuzzyFinder.querySelector("input").addEventListener("keydown", async e => {
