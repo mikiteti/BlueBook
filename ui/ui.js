@@ -14,6 +14,7 @@ class UI {
         this.modalBg = document.querySelector("#modalBg");
         this.alerts = document.querySelector("#alerts");
         this.prompts = document.querySelector("#prompts");
+        this.tooltip = document.querySelector("#tooltip");
         this.modalBg.addEventListener("click", () => {
             console.log("closing modal");
             if (this.focus === this.attachmentEditor) this.state.editedAttachment.finishEditing();
@@ -42,6 +43,8 @@ class UI {
         else document.documentElement.classList.remove("lineNumbers");
         if (this.state.settings.lineNumbers && this.state.settings.relNumbers) document.documentElement.classList.add("relNumbers");
         else document.documentElement.classList.remove("relNumbers");
+
+        this.initTooltipHandler();
     }
 
     initListeners() {
@@ -272,6 +275,46 @@ class UI {
         });
 
         return promise;
+    }
+
+    initTooltipHandler() { // TODO: not perfect, sometimes doesn't show
+        this.tooltipCandidate = { counter: 0 };
+
+        document.addEventListener("mouseover", e => {
+            if (!e.target.matches("[tooltip]")) return;
+
+            let currentCounter = this.tooltipCandidate.counter + 1;
+            this.tooltipCandidate = { element: e.target, counter: currentCounter };
+
+            setTimeout(() => {
+                if (this.tooltipCandidate.counter == currentCounter) {
+                    console.log(this.tooltipCandidate.element.getAttribute("tooltip"));
+                    this.tooltip.innerHTML = this.tooltipCandidate.element.getAttribute("tooltip");
+
+                    this.tooltip.style.display = "block";
+                    this.tooltip.animate([
+                        { opacity: "0", transform: "translateY(10px)" },
+                        { opacity: "1", transform: "translateY(0px)" },
+                    ], 200);
+                } else {
+                    console.log(this.tooltipCandidate.counter, currentCounter);
+                }
+            }, 500);
+        });
+
+        document.addEventListener("mouseout", e => {
+            if (!e.target.matches("[tooltip]")) return;
+
+            this.tooltipCandidate.counter++;
+
+            if (this.tooltip.style.display != "none") {
+                this.tooltip.style.display = "none";
+                this.tooltip.animate([
+                    { display: "block", opacity: "1", transform: "translateY(0px)" },
+                    { display: "block", opacity: "0", transform: "translateY(10px)" },
+                ], 200);
+            }
+        });
     }
 }
 
