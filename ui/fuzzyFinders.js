@@ -1,4 +1,4 @@
-import { parseHotkey, key, fuzzyFind } from "../editor/assets.js";
+import { parseHotkey, key, fuzzyFind, getUrl } from "../editor/assets.js";
 
 class FuzzyFinder {
     constructor({
@@ -7,27 +7,34 @@ class FuzzyFinder {
         getEntries,
         convertEntryToHTML,
         onClick,
+        onActiveChange = function() { return },
         fillTop = function() { this.element.querySelector(".top").innerHTML = "" },
         fillBottom = function() { this.element.querySelector(".bottom").innerHTML = "" },
     } = {}) {
         this.state = state;
         this.placeholder = placeholder;
-        this.getEntries = () => {
-            this.entries = getEntries();
+        this.getEntries = async () => {
+            this.entries = await getEntries();
             return this.entries;
         };
         this.convertEntryToHTML = convertEntryToHTML;
         this.onClick = onClick;
+        this.onActiveChange = () => {
+            this.active = [...state.UI.fuzzyFinder.querySelectorAll(".list > div.active:not(.nodisplay)")]
+                .map(e => state.UI.currentModal.entries.find(f => f.id == e.getAttribute("item-id")));
+
+            onActiveChange.bind(this)(this.active);
+        }
         this.element = state.UI.fuzzyFinder;
         this.fillTop = fillTop.bind(this);
         this.fillBottom = fillBottom.bind(this);
     }
 
-    loadContent() {
+    async loadContent() {
         this.element.querySelector("input").placeholder = this.placeholder;
         this.element.querySelector("input").value = "";
         this.element.querySelector("input").focus();
-        this.element.querySelector(".list").innerHTML = this.getEntries()
+        this.element.querySelector(".list").innerHTML = (await this.getEntries())
             .map(e => this.convertEntryToHTML(e))
             .join("");
         this.fillTop();
@@ -179,6 +186,7 @@ const initFuzzyFinders = state => {
 
                 for (let el of this.element.querySelectorAll(".list > div")) el.classList.remove("active");
                 this.element.querySelector(".list").appendChild(div);
+                state.UI.currentModal.onActiveChange();
                 input.focus();
 
                 input.addEventListener("keydown", async (e) => {
@@ -192,9 +200,10 @@ const initFuzzyFinders = state => {
 
             this.element.querySelector(".top .delete").addEventListener("click", async (e) => {
                 let entry = this.entries.find(f => f.id == this.element.querySelector(".list .active").getAttribute("item-id"));
-                if (entry.type == "folder") return state.UI.alert("Deleting entire folders is not allowed at the moment.");
+                if (entry.type == "folder")
+                    await Promise.all(entry.files.map(f => state.commands.find(g => g.codename == "delete_note").run(f.id)));
+                else await state.commands.find(f => f.codename == "delete_note").run(entry.id);
 
-                await state.commands.find(f => f.codename == "delete_note").run(entry.id);
                 await state.reload(["files", "currentFile"]);
                 this.loadContent();
             });
@@ -251,6 +260,32 @@ const initFuzzyFinders = state => {
         }
     });
 
+    const attachments = new FuzzyFinder({
+        state,
+        placeholder: "Find your attachments here",
+        getEntries: async () => { // shouldn't be async
+            let res = await state.sendRequest("attachments", { credentials: 'include' });
+            if (res == -1) return [];
+            let attachments = (await res.json()).map(e => ({ ...e, name: e.url }));
+
+            return attachments;
+        },
+        convertEntryToHTML: e => `<div item-id="${e.id}">${e.name}</div>`,
+        onClick: entry => {
+            navigator.clipboard.writeText("view/" + entry.url);
+            state.UI.alert("Copied", "The link to the attachment is on your clipboard");
+            closeModal();
+        },
+        onActiveChange: function(active) {
+            this.fillTop();
+        },
+        fillTop: function() {
+            console.log(this.active);
+            if (this.active) this.element.querySelector(".top").innerHTML = `<img  src="${getUrl('view/' + this.active[0]?.url)}" />`;
+            else this.element.querySelector(".top").innerHTML = "";
+        }
+    });
+
     const handleFuzzySearch = () => {
         let matches = fuzzyFind(state.UI.fuzzyFinder.querySelector("input").value, state.UI.currentModal.entries).map(e => e.id);
         let entries = state.UI.fuzzyFinder.querySelector(".list").children;
@@ -269,6 +304,7 @@ const initFuzzyFinders = state => {
                 activeDone = true;
             }
         }
+        state.UI.currentModal.onActiveChange();
     };
 
     state.UI.fuzzyFinder.querySelector("input").addEventListener("input", handleFuzzySearch);
@@ -276,7 +312,6 @@ const initFuzzyFinders = state => {
     state.UI.fuzzyFinder.addEventListener("click", async e => {
         if (!e.target.matches(".list div")) return;
 
-        console.log(state.UI.currentModal.entries.map(f => f.id), e.target.getAttribute("item-id"), e.target);
         let selectedEntry = state.UI.currentModal.entries.find(f => f.id == e.target.getAttribute("item-id"));
         state.UI.currentModal.onClick(selectedEntry);
     });
@@ -302,6 +337,8 @@ const initFuzzyFinders = state => {
                 if (i < displayed.length - 1 && displayed[i].classList.contains("active")) {
                     displayed[i].classList.remove("active");
                     displayed[i + 1].classList.add("active");
+
+                    state.UI.currentModal.onActiveChange();
                     return;
                 }
             }
@@ -313,13 +350,15 @@ const initFuzzyFinders = state => {
                 if (i > 0 && displayed[i].classList.contains("active")) {
                     displayed[i].classList.remove("active");
                     displayed[i - 1].classList.add("active");
+
+                    state.UI.currentModal.onActiveChange();
                     return;
                 }
             }
         }
     });
 
-    return { filePicker, commandPalette, fileExplorer, handleFuzzySearch, fileRestorer };
+    return { filePicker, commandPalette, fileExplorer, handleFuzzySearch, fileRestorer, attachments };
 };
 
 export default initFuzzyFinders;

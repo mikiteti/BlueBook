@@ -220,19 +220,21 @@ const newCommands = (state) => {
         {
             name: "List attachments",
             run: async () => {
-                if (vars.UI.attachments.children.length == 0) {
-                    let res = await state.sendRequest("attachments", { credentials: 'include' });
-                    if (res == -1) return;
-                    let attachments = (await res.json());
+                // if (vars.UI.attachments.children.length == 0) {
+                //     let res = await state.sendRequest("attachments", { credentials: 'include' });
+                //     if (res == -1) return;
+                //     let attachments = (await res.json());
+                //
+                //     for (let i of attachments) {
+                //         let img = document.createElement("img");
+                //         img.src = Environment.url + "view/" + i.url;
+                //         vars.UI.attachments.appendChild(img);
+                //     }
+                // }
+                //
+                // vars.UI.openModal(vars.UI.attachments);
 
-                    for (let i of attachments) {
-                        let img = document.createElement("img");
-                        img.src = Environment.url + "view/" + i.url;
-                        vars.UI.attachments.appendChild(img);
-                    }
-                }
-
-                vars.UI.openModal(vars.UI.attachments);
+                vars.UI.fuzzyFinders.attachments.open();
             }
         },
         {

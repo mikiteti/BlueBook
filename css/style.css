@@ -670,6 +670,22 @@ img {
     box-shadow: var(--shadow-lg-inset);
 }
 
+.modal .list div.active:has(+ .active)+.active {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top: none;
+    padding-top: 6px;
+    box-shadow: none;
+}
+
+.modal .list div.active:has(+ .active) {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: none;
+    padding-bottom: 6px;
+    box-shadow: none;
+}
+
 #curMode,
 #curCommand {
     position: fixed;
@@ -899,4 +915,8 @@ img {
     vertical-align: top;
     width: 1em;
     height: 1em;
+}
+
+#fuzzyFinder img {
+    max-width: 100%;
 }
