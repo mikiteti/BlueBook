@@ -319,11 +319,7 @@ const initFuzzyFinders = state => {
         state,
         placeholder: "Find your attachments here",
         getEntries: async function() {
-            let res = await state.sendRequest("attachments", { credentials: 'include' });
-            if (res == -1) return [];
-            let attachments = (await res.json()).map(e => ({ ...e, name: e.url }));
-
-            return attachments;
+            return (await state.getAttachments()).map(e => ({ ...e, name: e.url }));
         },
         convertEntryToHTML: e => `<div item-id="${e.id}">${e.name}</div>`,
         onClick: function(entry) {

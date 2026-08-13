@@ -132,7 +132,7 @@ class AttachmentEditor {
             case "graph":
                 await window.DesmosLoaded.promise;
                 let preview;
-                await new Promise(async (res, rej) => {
+                await new Promise(async (res, _) => {
                     await this.calculator.asyncScreenshot({
                         format: 'svg',
                         showLabels: true,

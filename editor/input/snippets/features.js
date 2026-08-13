@@ -87,19 +87,16 @@ const getFeatures = (editor, {
         let closeBrackets = ["}", "]", ")"];
         let start;
         for (let i = pos.index - line.from - 1; i >= 0; i--) {
-            console.log({ i });
             let char = text[i];
             for (let closeBracket of closeBrackets) {
                 if (char === closeBracket) {
                     let possibleStart = findMatchingBracket(text, i);
-                    console.log({ possibleStart });
                     if (possibleStart !== undefined) i = possibleStart;
                     if (possibleStart === 0) start = 0;
                 }
             }
 
             if (" {[(".concat(autoFractionBrakingChars).includes(char)) {
-                console.log("breaking char:", char);
                 start = i + 1;
                 break;
             }
@@ -110,7 +107,6 @@ const getFeatures = (editor, {
             }
         }
 
-        console.log(start, text.slice(start, pos.index - line.from - 1));
         if (start === undefined) return;
         if (start === pos.index - line.from - 1) return;
         editor.doc.change.noCallback({ insert: "\\frac{", at: line.from + start });

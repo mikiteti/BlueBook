@@ -70,6 +70,18 @@ const newCommands = (state) => {
 
     return [
         {
+            name: "Open File Explorer",
+            run: () => {
+                vars.UI.fuzzyFinders.fileExplorer.open();
+            }
+        },
+        {
+            name: "Open File Picker",
+            run: () => {
+                vars.UI.fuzzyFinders.filePicker.open();
+            }
+        },
+        {
             name: "Create user",
             run: async () => {
                 let [email, name, password] = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", { Email: "john@doe.com", Name: "John Doe", Password: "Secret123" });
@@ -220,21 +232,19 @@ const newCommands = (state) => {
         {
             name: "List attachments",
             run: async () => {
-                // if (vars.UI.attachments.children.length == 0) {
-                //     let res = await state.sendRequest("attachments", { credentials: 'include' });
-                //     if (res == -1) return;
-                //     let attachments = (await res.json());
-                //
-                //     for (let i of attachments) {
-                //         let img = document.createElement("img");
-                //         img.src = Environment.url + "view/" + i.url;
-                //         vars.UI.attachments.appendChild(img);
-                //     }
-                // }
-                //
-                // vars.UI.openModal(vars.UI.attachments);
+                if (vars.UI.attachments.children.length == 0) {
+                    let attachments = await state.getAttachments();
 
-                vars.UI.fuzzyFinders.attachments.open();
+                    for (let i of attachments) {
+                        let img = document.createElement("img");
+                        img.src = Environment.url + "view/" + i.url;
+                        vars.UI.attachments.appendChild(img);
+                    }
+                }
+
+                vars.UI.openModal(vars.UI.attachments);
+
+                // vars.UI.fuzzyFinders.attachments.open();
             }
         },
         {

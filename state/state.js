@@ -236,6 +236,14 @@ class State {
         return text;
     }
 
+    async getAttachments() {
+        let res = await this.sendRequest("attachments", { credentials: 'include' });
+        if (res == -1) return [];
+        this.attachments = await res.json();
+
+        return this.attachments;
+    }
+
     async getFiles() {
         let res = await this.sendRequest("notes"), json = [];
         if (res === -1) console.log("files weren't received");

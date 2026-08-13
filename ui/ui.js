@@ -139,11 +139,11 @@ class UI {
                 let [x1, y1] = [e.touches[0].clientX, e.touches[0].clientY];
                 if (x1 - x0 > 80 && Math.abs(y1 - y0) < 40) {
                     this.touchStart = undefined;
-                    this.openModal(this.filePicker);
+                    this.fuzzyFinders.fileExplorer.open();
                 }
                 else if (x1 - x0 < -80 && Math.abs(y1 - y0) < 40) {
                     this.touchStart = undefined;
-                    this.openModal(this.commandPalette);
+                    this.fuzzyFinders.commandPalette.open();
                 }
             }
         })
@@ -296,8 +296,6 @@ class UI {
                         { opacity: "0", transform: "translateY(10px)" },
                         { opacity: "1", transform: "translateY(0px)" },
                     ], 200);
-                } else {
-                    console.log(this.tooltipCandidate.counter, currentCounter);
                 }
             }, 500);
         });
