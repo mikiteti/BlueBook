@@ -1,4 +1,4 @@
-import { exportToMD } from "../editor/assets.js";
+import { exportToMD, exportToPdf } from "../editor/assets.js";
 import Environment from "../environment.js";
 import AttachmentEditor from "./editAttachments.js";
 
@@ -121,7 +121,7 @@ const newCommands = (state) => {
             }
         },
         {
-            name: "Restore deleted file",
+            name: "Restore deleted files",
             codename: "restore_note",
             run: () => {
                 state.UI.fuzzyFinders.fileRestorer.open();
@@ -178,6 +178,18 @@ const newCommands = (state) => {
                 vars.UI.alert("Exported", "Your file has been copied to your clipboard");
             },
             // hotkey: "M+e",
+        },
+        {
+            name: "Export to Pdf (uses Pandoc)",
+            run: async () => {
+                vars.UI.alert("Compiling", "This may take a while");
+                let text = await exportToPdf(vars.editor);
+                if (!text) {
+                    vars.UI.alert("Error", "Something went wrong with the export");
+                    return;
+                }
+                vars.UI.alert("Exported", "Your file has been downloaded");
+            },
         },
         {
             name: "Reload file",

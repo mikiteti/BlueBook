@@ -489,7 +489,7 @@ window.exportToLaTeX = exportToLaTeX;
 
 const exportToMD = async (editor = window.editor) => {
     let content = ["---"];
-    let title = window.state.files.find(e => e.id == editor.fileId)?.name || editor.fileId;
+    let title = window.state.files.find(e => e.id == editor.fileId)?.name.split("/").at(-1) || editor.fileId;
     if (title) content.push(`title: ${title}`);
     let author = window.state.user?.name;
     if (author) content.push(`author: ${author}`);
@@ -550,7 +550,7 @@ const exportToMD = async (editor = window.editor) => {
         else if (decos.has("subtitle")) text = "\\begin{subtitle}" + text + "\\end{subtitle}";
         else if (decos.has("link")) {
             let url = encodeURIComponent(getUrl(line.text.trim()).href);
-            text = "![](" + (Environment.url + `proxy-image?url=${url}`) + ")";
+            text = "![](" + (Environment.url + `proxy-image?url=${url}`) + "){width=70%}";
             insertEmptyLineInFront = true;
             text += "\n";
         }
@@ -724,4 +724,49 @@ const fuzzyFind = (string = "", array) => {
         .map(e => e.item);
 }
 
-export { nodeSizes, checkTreeStructure, getColumnAt, findXIndicesInLine, getVisualLineAt, exportFile, nodeAt, exportToMD, key, saveState, getUrl, estimateHeight, measureHeight, isLineInViewport, getViewportMargins, nodeInLineAtColumn, snapshotCarets, parseHotkey, exportToHTML, exportToLaTeX, fuzzyFind };
+let exportToPdf = async (editor = window.editor) => {
+    let markdown = await exportToMD(editor);
+    markdown = markdown.replaceAll(Environment.url, "http://bluebook:3000/");
+
+    const response = await window.state.sendRequest("compile", {
+        method: "POST",
+        body: JSON.stringify({ id: editor.fileId, markdown }),
+        headers: { "Content-Type": "application/json" },
+    });
+
+    const pdf = await response.blob();
+
+    const url = URL.createObjectURL(pdf);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (window.state.files.find(e => e.id == editor.fileId)?.name.split("/").at(-1) || editor.fileId || "document") + ".pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+
+    return pdf;
+}
+
+export {
+    nodeSizes,
+    checkTreeStructure,
+    getColumnAt,
+    findXIndicesInLine,
+    getVisualLineAt,
+    exportFile,
+    nodeAt,
+    exportToMD,
+    key,
+    saveState,
+    getUrl,
+    estimateHeight,
+    measureHeight,
+    isLineInViewport,
+    getViewportMargins,
+    nodeInLineAtColumn,
+    snapshotCarets,
+    parseHotkey,
+    exportToHTML,
+    exportToLaTeX,
+    fuzzyFind,
+    exportToPdf
+};
