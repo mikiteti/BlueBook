@@ -1,0 +1,50 @@
+html,
+body {
+    background: linear-gradient(125deg, #225, #111);
+    margin: none;
+}
+
+.sketchEditor {
+    width: 90vw;
+    height: 90vh;
+    border-radius: 20px;
+    background-color: #ddd;
+    position: absolute;
+    left: 5vw;
+    top: 5vh;
+
+    --baby-blue-ice: #94b1ffff;
+    --shadow-grey: #272838ff;
+    --light-gold: #f3de8aff;
+    --muted-olive: #a2be8aff;
+    --sea-green: #5c946eff;
+}
+
+.sketchEditor .menubar {
+    position: absolute;
+    display: flex;
+    gap: 2px;
+    border-radius: 6px;
+    border: 1px solid black;
+    bottom: 10px;
+    left: 10px;
+    padding: 2px 5px;
+}
+
+.sketchEditor .menubar .tool {
+    border-radius: 4px;
+    background-color: #0002;
+    scale: 1;
+    padding: 0 2px;
+    transition: scale 0.2s, background-color 0.2s;
+    cursor: pointer;
+}
+
+.sketchEditor .menubar .tool:hover {
+    background-color: white;
+}
+
+.sketchEditor .menubar .tool:active {
+    background-color: #0004;
+    scale: 0.8;
+}
