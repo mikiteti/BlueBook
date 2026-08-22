@@ -77,7 +77,7 @@ class State {
         let res = await fetch(URL + url, { ...body, credentials: 'include' });
 
         if (res.status === 401 || res.status === 403) {
-            console.log("must log in first...");
+            console.log("must log in first...", res);
             let email = localStorage.getItem("email"), password = localStorage.getItem("password");
             if (email == undefined || password == undefined) {
                 console.log("Login failed, no credentials in localStorage");
@@ -91,9 +91,10 @@ class State {
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
             });
+            console.log(res);
 
             if (res.status === 401 || res.status === 403) {
-                console.log("Login failed");
+                console.log("Login failed", res);
                 let text = await res.text();
                 this.UI.alert("Error", text);
                 return -1;
