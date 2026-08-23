@@ -254,8 +254,8 @@ const initFuzzyFinders = state => {
             this.element.querySelector(".top .delete").addEventListener("click", async (e) => {
                 let entry = this.entries.find(f => f.id == this.element.querySelector(".list .active").getAttribute("item-id"));
                 if (entry.type == "folder")
-                    await Promise.all(entry.files.map(f => state.commands.find(g => g.codename == "delete_note").run(f.id)));
-                else await state.commands.find(f => f.codename == "delete_note").run(entry.id);
+                    await Promise.all(entry.files.map(f => state.commands.find(g => g.codename == "file>delete").run(f.id)));
+                else await state.commands.find(f => f.codename == "file>delete").run(entry.id);
 
                 await state.reload(["files", "currentFile"]);
                 this.loadContent();

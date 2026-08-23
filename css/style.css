@@ -466,9 +466,10 @@ img {
     font-weight: var(--bold-weight) !important;
 }
 
-.italic {
+.italic,
+.italic * {
     font-style: italic;
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Crimson Pro', serif !important;
     font-size: 1.05em;
 }
 

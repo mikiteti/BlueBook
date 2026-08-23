@@ -71,12 +71,14 @@ const newCommands = (state) => {
     return [
         {
             name: "Open File Explorer",
+            codename: "open>explorer",
             run: () => {
                 vars.UI.fuzzyFinders.fileExplorer.open();
             }
         },
         {
             name: "Open File Picker",
+            codename: "open>picker",
             run: () => {
                 vars.UI.fuzzyFinders.filePicker.open();
             }
@@ -122,15 +124,15 @@ const newCommands = (state) => {
         },
         {
             name: "Restore deleted files",
-            codename: "restore_note",
+            codename: "file>restore",
             run: () => {
                 state.UI.fuzzyFinders.fileRestorer.open();
             }
         },
         {
             name: "Delete file",
-            codename: "delete_note",
-            run: async (id) => {
+            codename: "file>delete",
+            run: async (id = window.editor.fileId) => {
                 if (id == undefined) id = vars.editor.fileId;
 
                 let res = await state.sendRequest("update_note", {
@@ -147,6 +149,7 @@ const newCommands = (state) => {
         },
         {
             name: "Rename file",
+            codename: "file>rename",
             run: async () => {
                 let [name] = await vars.UI.prompt("Rename file", 'Input the new filename', { "Filename": state.files.find(e => e.id == vars.editor.fileId)?.name || "" });
                 let res = await state.sendRequest("update_note", {
@@ -166,6 +169,7 @@ const newCommands = (state) => {
         },
         {
             name: "Export to Markdown",
+            codename: "file>export>md",
             run: async () => {
                 let text = await exportToMD(vars.editor);
                 if (!text) {
@@ -181,6 +185,7 @@ const newCommands = (state) => {
         },
         {
             name: "Export to Pdf (uses Pandoc)",
+            codename: "file>export>pdf",
             run: async () => {
                 vars.UI.alert("Compiling", "This may take a while");
                 let text = await exportToPdf(vars.editor);
@@ -193,14 +198,16 @@ const newCommands = (state) => {
         },
         {
             name: "Reload file",
+            codename: "file>reload",
             run: () => {
                 state.reload(["file", "currentFile"]);
             }
         },
         {
-            name: "Create file",
+            name: "New file",
+            codename: "file>new",
             run: async () => {
-                let [fileName] = await vars.UI.prompt("Create file", "Input the filename in the box below", { Filename: "My new file" });
+                let [fileName] = await vars.UI.prompt("New file", "Input the filename in the box below", { Filename: "My new file" });
 
                 await state.openFile(await state.createFile({ name: fileName }));
                 vars.UI.focusEditor();
@@ -209,6 +216,7 @@ const newCommands = (state) => {
         },
         {
             name: "Copy note URL",
+            codename: "file>copy",
             run: async () => {
                 let url = new URL(window.location);
                 let noteUrl = state.getCurrentNoteUrl();
@@ -228,6 +236,7 @@ const newCommands = (state) => {
         },
         {
             name: "Save file",
+            codename: "file>save",
             run: () => {
                 state.saveFile(vars.editor);
             },
@@ -318,6 +327,7 @@ const newCommands = (state) => {
 
         {
             name: "Copy",
+            codename: "edit>copy",
             run: () => {
                 let from, to;
                 if (!vars.carets[0].fixedEnd) {
@@ -333,6 +343,7 @@ const newCommands = (state) => {
         },
         {
             name: "Paste",
+            codename: "edit>paste",
             run: async () => {
                 await state.clipboard.update();
                 for (let sc of vars.carets) state.clipboard.paste(sc.position.index);
@@ -341,6 +352,7 @@ const newCommands = (state) => {
         },
         {
             name: "Increase indent Level",
+            codename: "edit>indent",
             run: () => {
                 if (vars.editor.input.snippets.tabstops.length > 0) {
                     vars.editor.input.snippets.jumpToNextTabStops();
@@ -361,6 +373,7 @@ const newCommands = (state) => {
         },
         {
             name: "Decrease Indent Level",
+            codename: "edit>unindent",
             run: () => {
                 let indentedLines = [];
                 vars.caret.placeAllAt(pos => {
@@ -376,16 +389,19 @@ const newCommands = (state) => {
         },
         {
             name: "Format Selection: Toggle Link",
+            codename: "format>mark>link",
             hotkey: "M+l",
             run: () => { toggleMark("link") }
         },
         {
             name: "Format Line: Toggle Link",
+            codename: "format>line>link",
             hotkey: "M+S+l",
             run: () => { toggleDeco("link") }
         },
         {
             name: "Format Selection: Toggle Math",
+            codename: "format>mark>math",
             hotkey: "M+m",
             run: () => { toggleMark("math") }
         },
@@ -395,26 +411,31 @@ const newCommands = (state) => {
         // },
         {
             name: "Format Line: Toggle Math",
+            codename: "format>line>math",
             hotkey: ["M+d", "M+S+m"],
             run: () => { toggleDeco("math") }
         },
         {
             name: "Format Selection: Toggle Underline",
+            codename: "format>mark>underline",
             hotkey: "M+u",
             run: () => { toggleMark("underline") }
         },
         {
             name: "Format Line: Toggle Underline",
+            codename: "format>line>underline",
             hotkey: "M+S+u",
             run: () => { toggleDeco("underline") }
         },
         {
             name: "Format Selection: Toggle Bold",
+            codename: "format>mark>bold",
             hotkey: "M+b",
             run: () => { toggleMark("bold") }
         },
         {
             name: "Format Line: Toggle Bold",
+            codename: "format>line>bold",
             hotkey: "M+S+b",
             run: () => {
                 vars.history.newChangeGroup();
@@ -434,66 +455,79 @@ const newCommands = (state) => {
         },
         {
             name: "Format Selection: Toggle Italic",
+            codename: "format>mark>italic",
             hotkey: "M+i",
             run: () => { toggleMark("italic") }
         },
         {
             name: "Format Line: Toggle Italic",
+            codename: "format>line>italic",
             hotkey: "M+S+i",
             run: () => { toggleDeco("italic") }
         },
         {
             name: "Format Selection: Toggle Highlight",
+            codename: "format>mark>highlight",
             hotkey: "M+h",
             run: () => { toggleMark("highlight") }
         },
         {
             name: "Format Line: Toggle Highlight",
+            codename: "format>line>highlight",
             hotkey: "M+S+h",
             run: () => { toggleDeco("highlight") }
         },
         {
             name: "Format Selection: Toggle Border",
+            codename: "format>mark>border",
             // hotkey: "M+w",
             run: () => { toggleMark("spin_border") }
         },
         {
             name: "Format Line: Toggle Border",
+            codename: "format>line>border",
             // hotkey: "M+S+w",
             run: () => { toggleDeco("spin_border") }
         },
         {
             name: "Format Line: Toggle Center",
+            codename: "format>line>center",
             hotkey: "M+S+c",
             run: () => { toggleDeco("center") }
         },
         {
             name: "Format Line: Remove Decorations",
+            codename: "format>line>remove",
             hotkey: ["M+0", "M+S+0"],
             run: () => { toggleExclusiveDeco() }
         },
         {
             name: "Format Line: Make 1st Level Heading",
+            codename: "format>line>h1",
             hotkey: "M+S+a",
             run: () => { toggleExclusiveDeco("h1") }
         },
         {
             name: "Format Line: Make 2nd Level Heading",
+            codename: "format>line>h2",
             hotkey: "M+S+s",
             run: () => { toggleExclusiveDeco("h2") }
         },
         {
             name: "Format Line: Make 3rd Level Heading",
+            codename: "format>line>h3",
             hotkey: "M+S+d",
             run: () => { toggleExclusiveDeco("h3") }
         },
         {
             name: "Format Line: Make 4th Level Heading",
+            codename: "format>line>h4",
             hotkey: "M+S+f",
             run: () => { toggleExclusiveDeco("h4") }
         },
         {
             name: "Format Line: Make Subtitle",
+            codename: "format>line>subtitle",
             hotkey: "M+S+g",
             run: () => { toggleExclusiveDeco("subtitle") }
         },

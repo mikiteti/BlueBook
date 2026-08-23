@@ -29,7 +29,6 @@ class UI {
         this.state.getFiles().then(() => {
             this.fuzzyFinders = initFuzzyFinders(this.state);
 
-            console.log(this.state.note_url);
             if (this.state.note_url != undefined && this.state.files.find(e => e.url == this.state.note_url).content) {
                 console.log({ note_url: this.state.note_url });
                 console.log(this.state.files.find(e => e.url == this.state.note_url));

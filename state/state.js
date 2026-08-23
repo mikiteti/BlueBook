@@ -6,6 +6,10 @@ import newClipboard from "../editor/doc/clipboard.js";
 import Settings from "./settings.js";
 import UI from "../ui/ui.js";
 
+const Native = Environment.native
+    ? (await import("../native/init.js")).default
+    : undefined;
+
 class State {
     constructor() {
         window.state = this;
@@ -15,6 +19,11 @@ class State {
         if (savedState != undefined) savedState = JSON.parse(savedState);
         else savedState = {};
         this.settings = savedState.settings ? { ...Settings, ...savedState.settings } : Settings;
+
+        // initialising native functionality
+        console.log(Native);
+        if (Environment.native) this.native = new Native(this);
+        console.log(this.native);
 
         // initialising UI
         this.UI = new UI(this);
@@ -73,8 +82,14 @@ class State {
     }
 
     async sendRequest(url, body) {
+        let request = async (url, body) => {
+            if (this.native && this.native.request[url]) return await this.native.request[url](body);
+
+            return await fetch(URL + url, { ...body, credentials: 'include' });
+        }
+
         const URL = Environment.url;
-        let res = await fetch(URL + url, { ...body, credentials: 'include' });
+        let res = await request(url, body);
 
         if (res.status === 401 || res.status === 403) {
             console.log("must log in first...", res);
@@ -85,13 +100,11 @@ class State {
                 return -1;
             }
 
-            res = await fetch(URL + "login", {
+            res = await request("login", {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
             });
-            console.log(res);
 
             if (res.status === 401 || res.status === 403) {
                 console.log("Login failed", res);
@@ -100,7 +113,7 @@ class State {
                 return -1;
             }
 
-            res = await fetch(URL + url, { ...body, credentials: 'include' });
+            res = await request(url, body);
         } else if (res.status === 403) {
             this.UI.alert("Sorry, can't do that", "This is not yours.")
             return -1;
@@ -111,6 +124,7 @@ class State {
             return -1;
         }
 
+        if (res.status === 401 || res.status === 403) return -1;
         return res;
     }
 
