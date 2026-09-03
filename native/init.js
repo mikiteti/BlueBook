@@ -1,5 +1,6 @@
 import endpoints from "./endpoints.js";
 import initMenu from "./menu.js";
+import { fetch } from "@tauri-apps/plugin-http";
 
 class Native {
     constructor(state) {
@@ -8,6 +9,8 @@ class Native {
         this.request = endpoints;
 
         initMenu(state);
+
+        this.fetch = fetch;
     }
 }
 

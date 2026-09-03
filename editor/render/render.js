@@ -142,7 +142,7 @@ class Render {
             i++;
         }
         this.viewport = { from: firstLine.number, to: i - 1 };
-        console.log("rendered all", this.viewport);
+        // console.log("rendered all", this.viewport);
 
         requestAnimationFrame(() => this.renderInfo());
 
@@ -161,7 +161,7 @@ class Render {
 
             queueMicrotask(() => {
                 if (delta) this.editorElement.scrollBy(0, delta, { behavior: "auto" });
-                console.log("tiny render scrolling", delta);
+                // console.log("tiny render scrolling", delta);
                 requestAnimationFrame(res);
             });
         });

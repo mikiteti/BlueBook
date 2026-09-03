@@ -85,7 +85,7 @@ class State {
         let request = async (url, body) => {
             if (this.native && this.native.request[url]) return await this.native.request[url](body);
 
-            return await fetch(URL + url, { ...body, credentials: 'include' });
+            return await (this.native ? this.native.fetch : fetch)(URL + url, { ...body, credentials: 'include' });
         }
 
         const URL = Environment.url;
