@@ -365,20 +365,27 @@ p .link:active,
     /* margin makes viewport jump */
 }
 
-img {
+.imgWrapper img,
+.imgWrapper iframe {
     border-radius: 10px;
+    border: none;
 }
 
 .editor .imgWrapper[url="undefined"] img {
+    /* for non-desmos images */
     max-width: min(max(80%, 400px), 100%);
     max-height: 400px;
 }
 
-.editor .imgWrapper:not([url="undefined"]) img {
+.editor .imgWrapper:not([url="undefined"]) img,
+.imgWrapper iframe {
+    /* for desmos images and pdfs */
     width: min(max(80%, 400px), 100%);
+    aspect-ratio: 4/3;
 }
 
-.imgWrapper.notReady img {
+.imgWrapper.notReady img,
+.imgWrapper.notReady iframe {
     display: none;
 }
 

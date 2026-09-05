@@ -256,16 +256,15 @@ const newCommands = (state) => {
                 if (vars.UI.attachments.children.length == 0) {
                     let attachments = await state.getAttachments();
 
+                    let images = [];
                     for (let i of attachments) {
-                        let img = document.createElement("img");
-                        img.src = Environment.url + "view/" + i.url;
-                        vars.UI.attachments.appendChild(img);
+                        images.push(vars.render.createAttachmentElement("view/" + i.url))
                     }
+                    images = await Promise.all(images);
+                    for (let img of images) vars.UI.attachments.appendChild(img.element);
                 }
 
                 vars.UI.openModal(vars.UI.attachments);
-
-                // vars.UI.fuzzyFinders.attachments.open();
             }
         },
         {

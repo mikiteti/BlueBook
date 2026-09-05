@@ -223,6 +223,27 @@ class Render {
         }
     }
 
+    async createAttachmentElement(url0) {
+        let url = getUrl(url0);
+        let external = true, pdf = false;
+        if (url.attachmentUrl) { // if the link points to the backend, check if editable and if pdf
+            let meta = await window.state.sendRequest(`attachment/meta/${url.attachmentUrl}`);
+            if (meta !== -1) {
+                meta = await meta.json();
+                external = meta.type.includes("/");
+                pdf = meta.type == "application/pdf";
+            }
+        }
+
+        let img = document.createElement(pdf ? "iframe" : "img");
+        img.src = url.href;
+        img.addEventListener("error", _ => {
+            img.src = `img/404.png`;
+        });
+
+        return { element: img, external, pdf, url };
+    }
+
     async handleLink(line) {
         if (!line.decos.has("link") || line.deleted) {
             if (!line.element.imgWrapper) return;
@@ -244,31 +265,22 @@ class Render {
             editButton.innerHTML = "Edit";
             wrapper.appendChild(editButton);
 
-            let img = document.createElement("img");
-            wrapper.appendChild(img);
-            line.element.img = img;
-            img.Line = line;
-            img.element = line.element;
-            img.alt = "Link unavailable";
-            img.addEventListener("error", _ => {
-                img.src = `img/404.png`;
-            });
-            let url = getUrl(line.text.trim());
-            img.src = url.href;
-            let external = true;
-            if (url.attachmentUrl) {
-                external = await window.state.sendRequest(`attachment/isExternal/${url.attachmentUrl}`);
-                if (external == -1) external = undefined;
-                else external = (await external.json()).external;
-            }
+            let img = await this.createAttachmentElement(line.text.trim());
 
-            wrapper.setAttribute("url", external ? undefined : url.attachmentUrl);
+            wrapper.appendChild(img.element);
+            line.element.img = img.element;
+            img.element.Line = line;
+            img.element.element = line.element;
+
+            wrapper.setAttribute("url", img.external ? undefined : img.url.attachmentUrl);
             line.element.after(wrapper);
 
             return new Promise(res => {
-                img.addEventListener("load", res);
+                img.element.addEventListener("load", res);
             });
         } else {
+            if (line.element.img == undefined) return;
+
             let url = getUrl(line.text.trim());
             if (url.href === line.element.img.src) return;
             line.element.img.src = url.href;
