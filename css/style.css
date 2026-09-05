@@ -813,9 +813,12 @@ p .link:active,
     box-shadow: var(--shadow-lg-inset);
 }
 
-#attachments img {
+#attachments img,
+#attachments iframe {
     display: block;
     width: 100%;
+    border: none;
+    border-radius: 10px;
 }
 
 #attachments {
