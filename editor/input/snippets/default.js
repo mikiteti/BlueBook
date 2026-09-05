@@ -85,7 +85,7 @@ class DefaultSnippets {
             { from: "inv", to: "^{-1}", in: "mA" },
             { from: /\\(${OBJECT_SYMBOL}) \"/, to: "\\[[0]]^{${0}}${1}", in: "rmA" },
             { from: "\"", to: "^{${0}}${1}", in: "mA" },
-            { from: /(\d)e(\d)/, to: "[[0]]\\cdot 10^{[[1]]${0}}${1}", in: "mA", priority: 2 },
+            { from: /(\d)e([+-]?\d)/, to: "[[0]]\\cdot 10^{[[1]]${0}}${1}", in: "mA", priority: 2 },
             { from: /([^ ]):/, to: "[[0]]_{${0}}${1}", in: "rmA", priority: -1 },
             { from: "_{:", to: "_\\text{${0}", in: "mA", priority: 1 },
             // {from: "_", to: ":${0}", in: "mA"},
