@@ -255,7 +255,14 @@ class Render {
             });
             let url = getUrl(line.text.trim());
             img.src = url.href;
-            wrapper.setAttribute("url", url.attachmentUrl);
+            let external = true;
+            if (url.attachmentUrl) {
+                external = await window.state.sendRequest(`attachment/isExternal/${url.attachmentUrl}`);
+                if (external == -1) external = undefined;
+                else external = (await external.json()).external;
+            }
+
+            wrapper.setAttribute("url", external ? undefined : url.attachmentUrl);
             line.element.after(wrapper);
 
             return new Promise(res => {

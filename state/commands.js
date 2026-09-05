@@ -531,6 +531,38 @@ const newCommands = (state) => {
             hotkey: "M+S+g",
             run: () => { toggleExclusiveDeco("subtitle") }
         },
+        {
+            name: "Upload attachment",
+            codename: "attachment>upload",
+            run: () => {
+                let input = document.createElement("input");
+                input.type = "file";
+                input.accept = "image/*,.pdf";
+                input.addEventListener("change", async () => {
+                    const file = input.files[0];
+                    if (file == undefined) return;
+
+                    const form = new FormData();
+                    form.append("file", file);
+
+                    form.append("metadata", JSON.stringify({
+                        name: file.name,
+                    }));
+
+                    let res = await state.sendRequest("attachment/upload", {
+                        method: 'POST',
+                        body: form,
+                        credentials: 'include'
+                    });
+                    if (res === -1) return;
+                    let url = (await res.json())?.url;
+                    console.log(url);
+
+                    vars.UI.alert("Attachment uploaded", "You can find it from now on among your attachments.")
+                });
+                input.click();
+            }
+        }
     ]
 }
 
