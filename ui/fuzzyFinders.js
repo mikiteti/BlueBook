@@ -165,13 +165,13 @@ const initFuzzyFinders = state => {
                     let pwd = state.pwd;
                     for (let sel of this.selected?.entries) {
                         if (sel.type == "folder") for (let file of sel.files) {
-                            promises.push(state.sendRequest("update_note", {
+                            promises.push(state.sendRequest("note/update", {
                                 method: 'POST',
                                 body: JSON.stringify({ id: file.id, name: pwd + file.name.slice(this.selected.pwd.length) }),
                                 headers: { "Content-Type": "application/json" }
                             }));
                         } else {
-                            promises.push(state.sendRequest("update_note", {
+                            promises.push(state.sendRequest("note/update", {
                                 method: 'POST',
                                 body: JSON.stringify({ id: sel.id, name: pwd + sel.name }),
                                 headers: { "Content-Type": "application/json" }

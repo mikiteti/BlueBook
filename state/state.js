@@ -38,7 +38,7 @@ class State {
 
         // getting user data
         this.editors = [];
-        this.sendRequest("user").then(res => {
+        this.sendRequest("user/get").then(res => {
             if (res === -1) {
                 console.log("no credentials");
                 return;
@@ -100,7 +100,7 @@ class State {
                 return -1;
             }
 
-            res = await request("login", {
+            res = await request("user/login", {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' },
@@ -162,7 +162,7 @@ class State {
 
     async createFile(file) {
         console.log("creating file");
-        let res = await this.sendRequest("new_note", {
+        let res = await this.sendRequest("note/new", {
             method: 'POST',
             body: JSON.stringify({ name: file.name }),
             headers: { "Content-Type": "application/json" }
@@ -182,13 +182,13 @@ class State {
         console.log("getting file", file);
         let res;
         if (file.id != undefined) {
-            res = await this.sendRequest("note", {
+            res = await this.sendRequest("note/get", {
                 method: 'POST',
                 body: JSON.stringify({ id: file.id }),
                 headers: { "Content-Type": "application/json" }
             });
         } else if (file.url != undefined) {
-            res = await this.sendRequest("note_by_url", {
+            res = await this.sendRequest("note/get/url", {
                 method: 'POST',
                 body: JSON.stringify({ url: file.url }),
                 headers: { "Content-Type": "application/json" }
@@ -238,7 +238,7 @@ class State {
         if (localFile && localFile.misc) localFile.misc = { ...localFile.misc, ...misc };
         else if (localFile) localFile.misc = misc;
 
-        let res = await this.sendRequest("update_note", {
+        let res = await this.sendRequest("note/update", {
             method: 'POST',
             body: JSON.stringify({ id: editor.fileId, content, misc: JSON.stringify(misc) }),
             headers: { "Content-Type": "application/json" }
@@ -252,7 +252,7 @@ class State {
     }
 
     async getAttachments() {
-        let res = await this.sendRequest("attachments", { credentials: 'include' });
+        let res = await this.sendRequest("attachment/list", { credentials: 'include' });
         if (res == -1) return [];
         this.attachments = await res.json();
 
@@ -260,7 +260,7 @@ class State {
     }
 
     async getFiles() {
-        let res = await this.sendRequest("notes"), json = [];
+        let res = await this.sendRequest("note/list"), json = [];
         if (res === -1) console.log("files weren't received");
         else {
             json = await res.json();
@@ -307,7 +307,7 @@ class State {
 
     async reload(elements = ["files", "user", "currentFile"]) {
         if (elements.includes("user")) {
-            let res = await this.sendRequest("user");
+            let res = await this.sendRequest("user/get");
             let user = await res.json();
             console.log("Logged in as:", user);
             this.user = user;
@@ -329,7 +329,7 @@ class State {
     }
 
     async restoreFile(id) {
-        let res = await this.sendRequest("update_note", {
+        let res = await this.sendRequest("note/update", {
             method: 'POST',
             body: JSON.stringify({ id, misc: JSON.stringify({ deleted: false }) }),
             headers: { "Content-Type": "application/json" }

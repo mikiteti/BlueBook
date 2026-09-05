@@ -74,7 +74,7 @@ class AttachmentEditor {
         const preview = await this.getPreview();
         if (window.state.editor.interactive) {
             const state = await this.getState();
-            await window.state.sendRequest("update_attachment", {
+            await window.state.sendRequest("attachment/update", {
                 method: 'POST',
                 body: JSON.stringify({ content: JSON.stringify(state), preview, url: this.url }),
                 headers: { "Content-Type": "application/json" },

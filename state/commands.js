@@ -14,7 +14,7 @@ const newCommands = (state) => {
     };
 
     const createAttachment = async (type) => {
-        let res = await state.sendRequest("new_attachment", {
+        let res = await state.sendRequest("attachment/new", {
             method: 'POST',
             body: JSON.stringify({ type }),
             headers: { "Content-Type": "application/json" },
@@ -87,7 +87,7 @@ const newCommands = (state) => {
             name: "Create user",
             run: async () => {
                 let [email, name, password] = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", { Email: "john@doe.com", Name: "John Doe", Password: "Secret123" });
-                let res = await state.sendRequest("new_user", {
+                let res = await state.sendRequest("user/new", {
                     method: 'POST',
                     body: JSON.stringify({ email, name, password }),
                     headers: { "Content-Type": "application/json" },
@@ -110,7 +110,7 @@ const newCommands = (state) => {
                 localStorage.setItem('email', email);
                 localStorage.setItem('password', password);
 
-                let res = await state.sendRequest("login", {
+                let res = await state.sendRequest("user/login", {
                     method: 'POST',
                     body: JSON.stringify({ email, password }),
                     headers: { 'Content-Type': 'application/json' },
@@ -135,7 +135,7 @@ const newCommands = (state) => {
             run: async (id = window.editor.fileId) => {
                 if (id == undefined) id = vars.editor.fileId;
 
-                let res = await state.sendRequest("update_note", {
+                let res = await state.sendRequest("note/update", {
                     method: 'POST',
                     body: JSON.stringify({ id, misc: JSON.stringify({ deleted: true }) }),
                     headers: { "Content-Type": "application/json" }
@@ -152,7 +152,7 @@ const newCommands = (state) => {
             codename: "file>rename",
             run: async () => {
                 let [name] = await vars.UI.prompt("Rename file", 'Input the new filename', { "Filename": state.files.find(e => e.id == vars.editor.fileId)?.name || "" });
-                let res = await state.sendRequest("update_note", {
+                let res = await state.sendRequest("note/update", {
                     method: 'POST',
                     body: JSON.stringify({ id: vars.editor.fileId, name }),
                     headers: { "Content-Type": "application/json" }
