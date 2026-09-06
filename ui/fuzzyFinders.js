@@ -315,7 +315,7 @@ const initFuzzyFinders = state => {
         }
     });
 
-    const attachments = new FuzzyFinder({
+    const attachments = new FuzzyFinder({ // deactivated in favor of superior image explorer
         state,
         placeholder: "Find your attachments here",
         getEntries: async function() {

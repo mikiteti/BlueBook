@@ -67,9 +67,25 @@ class UI {
                 }
             }
 
-            if (e.target.matches("#attachments img")) {
-                navigator.clipboard.writeText("view" + e.target.src.split("view")[1]);
-                this.alert("Copied", "The link to the attachment is on your clipboard");
+            if (e.target.matches("#attachments .grid .wrapper")) {
+                let img = e.target.querySelector("img, iframe");
+                if (img.classList.contains("active")) {
+                    this.state.registers[""].copy(undefined, undefined, {
+                        text: "view" + img.src.split("view")[1] + "\n",
+                        decos: [["link"]],
+                    });
+                    this.state.clipboard.copy(undefined, undefined, {
+                        text: "view" + img.src.split("view")[1],
+                        decos: [["link"]],
+                    });
+                    // navigator.clipboard.writeText("view" + img.src.split("view")[1]);
+                    this.alert("Copied", "The link to the attachment is on your clipboard");
+                    this.closeModal(); // TODO: doesn't transition
+                } else {
+                    this.attachments.querySelectorAll(".grid .wrapper img.active, .grid .wrapper iframe.active")
+                        .forEach(f => f.classList.remove("active"));
+                    img.classList.add("active");
+                }
 
                 return;
             }
@@ -155,7 +171,7 @@ class UI {
     async openModal(modal) {
         if (this.focus?.isConnected && this.focus?.matches(".modal")) await this.closeModal();
 
-        modal.style.display = "flex";
+        modal.classList.add("active");
         modal.animate([
             { opacity: 0, transform: "translate(-50%, 3px)" },
             { opacity: 1, transform: "translate(-50%, 0px)" }
@@ -172,7 +188,7 @@ class UI {
     }
 
     async closeModal() {
-        this.focus.style.display = "none";
+        this.focus.classList.remove("active");
         this.focus.animate([
             { opacity: 1, transform: "translate(-50%, 0px)", display: "flex" },
             { opacity: 0, transform: "translate(-50%, 3px)", display: "flex" }

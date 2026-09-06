@@ -31,7 +31,7 @@ const newCommands = (state) => {
             vars.doc.change.insert("\nview/" + url, caret.position.Line.to);
         }
 
-        state.UI.attachments.innerHTML = "";
+        state.UI.attachments.querySelector(".grid").innerHTML = "";
 
         vars.doc.line(lineNum).addDeco("link");
         requestAnimationFrame(() => {
@@ -253,7 +253,7 @@ const newCommands = (state) => {
         {
             name: "List attachments",
             run: async () => {
-                if (vars.UI.attachments.children.length == 0) {
+                if (vars.UI.attachments.querySelector(".grid").children.length == 0) {
                     let attachments = await state.getAttachments();
 
                     let images = [];
@@ -261,7 +261,12 @@ const newCommands = (state) => {
                         images.push(vars.render.createAttachmentElement("view/" + i.url))
                     }
                     images = await Promise.all(images);
-                    for (let img of images) vars.UI.attachments.appendChild(img.element);
+                    for (let img of images) {
+                        let wrapper = document.createElement("div");
+                        wrapper.classList.add("wrapper");
+                        wrapper.appendChild(img.element);
+                        vars.UI.attachments.querySelector(".grid").appendChild(wrapper);
+                    }
                 }
 
                 vars.UI.openModal(vars.UI.attachments);

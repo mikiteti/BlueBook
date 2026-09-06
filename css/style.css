@@ -618,7 +618,7 @@ p .link:active,
     background-color: var(--color-bg);
     backdrop-filter: blur(5px);
     box-shadow: var(--shadow-lg);
-    display: none;
+    display: flex;
     flex-direction: column;
     position: fixed;
     /* min-width: max(40vw, 300px); */
@@ -630,6 +630,10 @@ p .link:active,
     padding-bottom: 0;
     max-height: calc(100vh - 20vw);
     overflow-y: hidden;
+}
+
+.modal:not(.active) {
+    display: none !important;
 }
 
 .modal input:not(.modal .list input) {
@@ -813,23 +817,40 @@ p .link:active,
     box-shadow: var(--shadow-lg-inset);
 }
 
-#attachments img,
-#attachments iframe {
-    display: block;
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-}
-
 #attachments {
-    overflow-y: scroll;
     height: calc(100vh - 20vw);
-    width: min(90vw, 600px);
+    width: 90vw;
     max-width: 90vw;
     padding: min(10%, 50px);
     box-sizing: border-box;
-    flex-direction: column;
     gap: 20px;
+    flex-direction: row;
+    display: block;
+}
+
+#attachments .grid {
+    overflow-y: scroll;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+}
+
+#attachments .grid .wrapper {
+    padding: 5px;
+    border-radius: 15px;
+    height: min-content;
+}
+
+#attachments .grid .wrapper:has(img.active, iframe.active) {
+    background-color: #fff5;
+}
+
+#attachments .grid .wrapper img,
+#attachments .grid .wrapper iframe {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    pointer-events: none;
 }
 
 .hotkey {

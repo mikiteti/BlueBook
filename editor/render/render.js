@@ -225,9 +225,9 @@ class Render {
 
     async createAttachmentElement(url0) {
         let url = getUrl(url0);
-        let external = true, pdf = false;
+        let meta, external = true, pdf = false;
         if (url.attachmentUrl) { // if the link points to the backend, check if editable and if pdf
-            let meta = await window.state.sendRequest(`attachment/meta/${url.attachmentUrl}`);
+            meta = await window.state.sendRequest(`attachment/meta/${url.attachmentUrl}`);
             if (meta !== -1) {
                 meta = await meta.json();
                 external = meta.type.includes("/");
@@ -241,7 +241,7 @@ class Render {
             img.src = `img/404.png`;
         });
 
-        return { element: img, external, pdf, url };
+        return { element: img, external, pdf, url, meta };
     }
 
     async handleLink(line) {

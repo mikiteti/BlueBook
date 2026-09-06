@@ -22,9 +22,9 @@ class Clipboard {
         return { text, decos, marks };
     }
 
-    copy(from, to, { text, clipboard } = {}) {
+    copy(from, to, { text, decos = [], marks = [], clipboard } = {}) {
         if (from != undefined && to != undefined) this.content = this.parse(from, to);
-        else if (text != undefined) this.content = { text };
+        else if (text != undefined) this.content = { text, decos, marks };
         else if (clipboard != undefined) this.content = JSON.parse(JSON.stringify(clipboard.content || {}));
 
         if (this.name === "window") {
@@ -82,7 +82,7 @@ class Clipboard {
         if (line1.marks.find(e => e.from.index <= at && e.to.index >= at) && content.marks[0])
             line1.deleteMark(line1.marks.find(e => e.from.index <= at && e.to.index >= at));
 
-        for (let i = 0; i < lineNum; i++)
+        for (let i = 0; i < lineNum; i++) if (content.marks[i])
             this.editor.doc.line(line1.number + i).addNewMark(content.marks[i].map(e => ({ from: e.from + at, to: e.to + at, role: e.role })));
 
         for (let i = 0; i < lineNum; i++) {
@@ -99,7 +99,7 @@ class Clipboard {
         let lines = content.text.split("\n");
         let html = "", charsBeforeLine = 0;
         for (let i = 0; i < lines.length; i++) {
-            let atoms = [], index = 0, marks = content.marks[i];
+            let atoms = [], index = 0, marks = content.marks[i] || [];
             for (let mark of marks) {
                 atoms.push(lines[i].slice(index, mark.from - charsBeforeLine));
                 atoms.push(lines[i].slice(mark.from - charsBeforeLine, mark.to - charsBeforeLine));
