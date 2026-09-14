@@ -206,7 +206,7 @@ class Doc extends Node {
         this.heightChangeCallbackTimer = now;
         queueMicrotask(() => {
             this.editor.elements.textarea.style.height = (this.height - this.editor.elements.spacer.getAttribute("height")) + "px";
-            console.log("updating window height");
+            // console.log("updating window height"); // TODO: small jumps may occur when window height is updated
         });
     }
 

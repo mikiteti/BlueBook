@@ -160,8 +160,10 @@ class Render {
             let delta = firstRenderedLine.verticalOffset - initialOffset;
 
             queueMicrotask(() => {
-                if (delta) this.editorElement.scrollBy(0, delta, { behavior: "auto" });
-                // console.log("tiny render scrolling", delta);
+                if (delta) {
+                    this.editorElement.scrollBy(0, delta, { behavior: "auto" });
+                    console.log("tiny render scrolling", delta);
+                }
                 requestAnimationFrame(res);
             });
         });
@@ -188,9 +190,9 @@ class Render {
         if (!line.decos.has("math") || line.deleted) {
             if (!line.element?.DM) return;
             line.element.DM.remove();
-            queueMicrotask(_ => {
-                line.element.DM = undefined;
-            });
+            // queueMicrotask(_ => { // experimentally commented
+            line.element.DM = undefined;
+            // });
 
             return;
         }
