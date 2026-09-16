@@ -199,6 +199,7 @@ class State {
         let note = await res.json();
         console.log(note);
         note.content = JSON.parse(note.content);
+        note.misc = JSON.parse(note.misc || "{}");
         if (note.content == undefined || note.content.length === 0) note.content = [{ text: "" }];
 
         return note;
@@ -276,34 +277,13 @@ class State {
             let mode = this.URL.searchParams.get("mode")
             if (currentFile.user_id != this.user?.id && (mode == undefined || mode == "read")) currentFile.interactive = false;
             let index = json.indexOf(json.find(e => e.url == this.note_url) || {});
-            if (index == -1) {
-                json.push(currentFile);
-            } else json[index] = { ...json[index], ...currentFile };
+            if (index == -1) json.push(currentFile);
+            else json[index] = currentFile;
         }
 
         this.files = json;
         return json;
     }
-
-    // handleFuzzySearch(modal = this.UI.filePicker, array = modal.entries) {
-    //     let matches = this.fuzzyFind(modal.querySelector("input").value, array).map(e => e.id);
-    //     let entries = modal.querySelector(".list").children;
-    //     let activeDone = false;
-    //     for (let el of entries) {
-    //         el.classList.remove("active");
-    //         el.classList.add("nodisplay");
-    //     }
-    //     for (let m of matches) {
-    //         let el = modal.querySelector(`.list [item-id="${m}"]`);
-    //         if (el == undefined) continue;
-    //         el.classList.remove("nodisplay");
-    //         modal.querySelector(".list").appendChild(el);
-    //         if (!activeDone && matches.includes(parseInt(el.getAttribute("item-id")) || el.getAttribute("item-id"))) {
-    //             el.classList.add("active");
-    //             activeDone = true;
-    //         }
-    //     }
-    // }
 
     async reload(elements = ["files", "user", "currentFile"]) {
         if (elements.includes("user")) {
