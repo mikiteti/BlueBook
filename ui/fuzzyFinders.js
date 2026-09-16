@@ -126,9 +126,7 @@ const initFuzzyFinders = state => {
 
             let file = window.state.files.find(f => f.id == e.id);
             let info = [];
-            // if (file.misc?.created) info.push("Created " + new Date(file.misc.created).toLocaleString());
             if (file.misc?.created) info.push(new Date(file.misc.created).toLocaleString());
-            // if (file.misc?.last_modified) info.push("Last modified " + new Date(file.misc.last_modified).toLocaleString());
             if (file.misc?.size) info.push(`L${file.misc.size.l} W${file.misc.size.w} C${file.misc.size.c}`);
             info = info.join(" – ");
 

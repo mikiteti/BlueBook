@@ -278,7 +278,7 @@ class State {
             let index = json.indexOf(json.find(e => e.url == this.note_url) || {});
             if (index == -1) {
                 json.push(currentFile);
-            } else json[index] = currentFile;
+            } else json[index] = { ...json[index], ...currentFile };
         }
 
         this.files = json;
