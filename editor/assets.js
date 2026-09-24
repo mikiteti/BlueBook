@@ -727,6 +727,16 @@ const fuzzyFind = (string = "", array) => {
 let exportToPdf = async (editor = window.editor) => {
     let markdown = await exportToMD(editor);
     markdown = markdown.replaceAll(Environment.url, "http://bluebook:3000/");
+    markdown = markdown.replace(/\\si(\*?)\{([^{}]*)\}/g, (_, star, unit) =>
+        `\\si${star}{${unit.replaceAll('\\Omega', '\\ohm')}}`
+    );
+
+    markdown = markdown.replace(
+        /\\SI(\*?)\{([^{}]*)\}\{([^{}]*)\}/g,
+        (_, star, value, unit) =>
+            `\\SI${star}{${value}}{${unit.replaceAll('\\Omega', '\\ohm')}}`
+    );
+    console.log(markdown);
 
     const response = await window.state.sendRequest("compile", {
         method: "POST",
