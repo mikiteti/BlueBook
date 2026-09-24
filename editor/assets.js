@@ -106,10 +106,20 @@ const getLineBreaks = (line, nodes) => {
         range.setStart(...nodeAt1);
         range.setEnd(...nodeAt2);
         let Rects = range.getClientRects();
-        if (Rects.length > 1 && nodeAt1[0] === nodeAt2[0]) { // TODO: what if new node starts right at the beggining of a new line
-            lineBreaks.push(i - 1);
-        } else if (Rects.length > 1 && Rects[0].left > Rects[1].left && Rects[0].bottom < Rects[1].top) lineBreaks.push(i);
+        if (Rects.length === 0) continue;
+
+        // if (Rects.length > 1 && nodeAt1[0] === nodeAt2[0]) { // TODO: what if new node starts right at the beggining of a new line
+        //     lineBreaks.push(i - 1);
+        // } else if (Rects.length > 1 && Rects[0].left > Rects[1].left && Rects[0].bottom < Rects[1].top) lineBreaks.push(i);
         // else if (prevRect && prevRect.left > Rects[0].left && prevRect.bottom < Rects[0].top) lineBreaks.push(i - 1);
+
+        // Code above relied on a WebKit bug fixed in MacOS 27
+        // characters at the end of wrapped lines would have two rects, one with width 0.
+        if (prevRect && prevRect.bottom < Rects[0].top) {
+            // console.log(i, prevRect, Rects[0], line.text.slice(0, i));
+            lineBreaks.push(i - 1);
+        }
+        // if (Rects.length !== 1) console.error("Not 1 rect", i, Rects, line.text.slice(0, i)); // doesn't cause problems, but unknown behaviour
 
         prevRect = Rects[Rects.length - 1];
     }
@@ -167,6 +177,7 @@ const nodeInLineAtColumn = (line, column) => { // takes in a line and a column, 
     return [nodes.at(-1), nodes.at(-1).textContent.length];
 }
 
+// Binary serach inside one visual line
 const findXInVisualLine = (x, nodes, from, to) => { // TODO: check for edge cases
     let min = from, max = to;
     let range = document.createRange();
@@ -187,8 +198,8 @@ const findXInVisualLine = (x, nodes, from, to) => { // TODO: check for edge case
         Rects = range.getClientRects();
         rects = [];
         for (let rect of Rects) if (rect.width !== 0) rects.push(rect);
-        if (rects.length && rects[0].left <= x
-            && rects.at(-1).right >= x) max = current;
+        if (rects.length && rects[0].left <= x + 1 // +1 for correcting floating point and measurement errors
+            && rects.at(-1).right >= x - 1) max = current;
         else min = current;
     }
 
@@ -453,7 +464,6 @@ const exportToLaTeX = async (editor = window.editor) => {
             let name = isSvg ? `${url0.attachmentUrl}.svg` : `asset${hashURL(url)}.${url0.pathname.split(".").at(-1)}`;
             // let name = isSvg ? `${url0.attachmentUrl}.svg` : `asset.${url0.pathname.split(".").at(-1)}`;
             let download = `\\immediate\\write18{curl -o ${name} ${url}}`;
-            console.log({ isSvg, url, url0, download });
             let link = `\\noindent\\hfill
 ${isSvg ? `\\includesvg[width=0.6\\textwidth]{${name}}` : `\\includegraphics[width=0.6\\textwidth]{${name}}`}
 \\hfill\\mbox{}`;

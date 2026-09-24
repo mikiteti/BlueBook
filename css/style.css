@@ -564,6 +564,11 @@ p .link:active,
 
 .wrapper:not(.editingSource) .math {
     display: none !important;
+
+    /* Even if text is rendered with absolute positioning and 0 opacity, when */
+    /* maths source is wrapped, notfirstlines will be wrapped under the start of */
+    /* the first line of the maths source, not the whole line */
+
     /* height: 0; */
     /* transform: scaleY(0); */
     /* opacity: 0; */
