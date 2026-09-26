@@ -350,7 +350,7 @@ const newCommands = (state) => {
             codename: "edit>paste",
             run: async () => {
                 await state.clipboard.update();
-                for (let sc of vars.carets) state.clipboard.paste(sc.position.index);
+                for (let sc of vars.carets) state.clipboard.paste(sc.position.index, undefined, { update: false });
             },
             hotkey: ["M+v", "M+S+v"],
         },

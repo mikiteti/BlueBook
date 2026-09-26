@@ -456,7 +456,7 @@ const createCommandSet = editor => {
                     let line = doc.lineAt(index);
                     index = belowIfLine ? line.to + 1 : line.from;
                 }
-                registers[regName].paste(index);
+                registers[regName].paste(index, undefined, { update: false });
                 let caretPos = index + Math.max(registers[regName].content.text.length - 1, 0);
                 Promise.all(window.renderPromises || []).then(() => {
                     queueMicrotask(() => {

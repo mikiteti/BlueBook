@@ -59,12 +59,13 @@ class Clipboard {
     async update() {
         if (this.name !== "window") return;
 
+        console.error("activation:", navigator.userActivation.isActive);
         let text = await navigator.clipboard.readText();
         if (!this.compare(text)) this.content = { text, decos: text.split("\n").map(_ => []), marks: text.split("\n").map(_ => []) };
     }
 
-    async paste(at, content = this.content, { from, to } = {}) {
-        await this.update();
+    async paste(at, content = this.content, { from, to, update = true } = {}) {
+        if (update) await this.update();
 
         if (at == undefined && (from == undefined || to == undefined) || content == undefined || content.text == undefined) return;
         if (at == undefined) {
