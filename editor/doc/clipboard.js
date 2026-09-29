@@ -59,7 +59,6 @@ class Clipboard {
     async update() {
         if (this.name !== "window") return;
 
-        console.error("activation:", navigator.userActivation.isActive);
         let text = await navigator.clipboard.readText();
         if (!this.compare(text)) this.content = { text, decos: text.split("\n").map(_ => []), marks: text.split("\n").map(_ => []) };
     }

@@ -126,7 +126,7 @@ const createCommandSet = editor => {
 
         let curType = 0; // count start of line as blank space
         if (curType !== prevType && prevType !== 0) c++;
-        if (c >= count) return pos.Line.from;
+        if (c >= count || pos.Line.number == 0) return pos.Line.from;
 
         return findStartOfWord(parsePosition(pos.Line.from - 1), count - c);
     };
@@ -149,7 +149,7 @@ const createCommandSet = editor => {
 
         let curType = 0; // count end of line as blank space
         if (curType !== prevType && prevType !== 0) c++;
-        if (c >= count) return pos.Line.to - 1;
+        if (c >= count || pos.Line.number == doc.lines - 1) return pos.Line.to - 1;
 
         return findEndOfWord(parsePosition(pos.Line.to + 1), count - c);
     };
