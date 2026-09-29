@@ -59,9 +59,11 @@ class Snippets {
         switch (current) {
             case "dm":
                 if (wanted.includes("m")) return true;
+                if (wanted.includes("d")) return true;
                 return false;
             case "im":
                 if (wanted.includes("m")) return true;
+                if (wanted.includes("i")) return true;
                 return false;
             case "t":
                 if (wanted.includes("t")) return true;

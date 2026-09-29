@@ -157,8 +157,10 @@ class DefaultSnippets {
             { from: "rm", to: "\\mathrm{${0}}${1}", in: "mA" },
 
             // {from: "pu", to: "\\pu{${0}}\\,${1}", in: "mA"},
-            { from: "unit", to: "\\,\\si{${0}}\\,${1}", in: "mA" },
-            { from: "pu", to: "\\SI{${0}}{${1}}\\,${2}", in: "mA" },
+            { from: "unit", to: "\\,\\si{${0}}\\,${1}", in: "dA" },
+            { from: "pu", to: "\\SI{${0}}{${1}}\\,${2}", in: "dA" },
+            { from: "unit", to: "\\,\\si{${0}}${1}", in: "iA" },
+            { from: "pu", to: "\\SI{${0}}{${1}}${2}", in: "iA" },
             { from: "tag", to: "\\tag{${0}}${1}", in: "mA" },
 
             // More auto letter subscript
@@ -172,7 +174,7 @@ class DefaultSnippets {
             { from: /^sum/, to: "\\sum", in: "mA", priority: -1 },
             { from: "dsum", to: "\\sum_{${0:i}=${1:0}}^{${2:n}} ${3}", in: "mA" },
             { from: "prod", to: "\\prod", in: "mA" },
-            { from: "dprod", to: "\\prod_{${0:i}=${1:1}}^{${2:N}} ${3}", in: "m", priority: 1 },
+            { from: "dprod", to: "\\prod_{${0:i}=${1:1}}^{${2:N}} ${3}", in: "mA", priority: 1 },
             { from: "lim", to: "\\lim_{ ${0:n} \\to ${1:\\infty} } ${2}", in: "mA" },
             { from: "+-", to: "\\pm", in: "mA" },
             { from: "-+", to: "\\mp", in: "mA" },
@@ -238,8 +240,8 @@ class DefaultSnippets {
             { from: "\\mathrm{d}n", to: "\\frac{\\mathrm{d}^{${0:n}} ${1:y}}{\\mathrm{d} ${2:x}^{${0:n}}} ${3}", in: "mA" },
             // { from: "\\mathrm{d}t", to: "\\frac{\\mathrm{d}}{\\mathrm{d}t} ", in: "mA" },
 
-            { from: /([^\\])int/, to: "[[0]]\\int${0} \\, \\mathrm{d}${1:x} ${2}", in: "mA", priority: -1 },
-            { from: /^int/, to: "\\int${0} \\, \\mathrm{d}${1:x} ${2}", in: "mA", priority: -1 },
+            { from: /([^\\])int/, to: "[[0]]\\int ${0} \\, \\mathrm{d}${1:x} ${2}", in: "mA", priority: -1 },
+            { from: /^int/, to: "\\int ${0} \\, \\mathrm{d}${1:x} ${2}", in: "mA", priority: -1 },
             { from: "dint", to: "\\int_{${0:0}}^{${1:1}} ${2} \\, \\mathrm{d}${3:x} ${4}", in: "mA" },
             { from: "oint", to: "\\oint_{${0}} ${1} \\, \\mathrm{d} ${2:\\ell} ${3}", in: "mA" },
             { from: "\\mathrm{i}nt", to: "\\iint", in: "mA" },
