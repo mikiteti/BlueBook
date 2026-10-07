@@ -90,6 +90,7 @@ const initFuzzyFinders = state => {
     });
 
     state.pwd = "";
+    state.emptyFolders = [];
     const fileExplorer = new FuzzyFinder({
         state,
         placeholder: "Search for stuff in this folder",
@@ -97,14 +98,13 @@ const initFuzzyFinders = state => {
             if (state.files == undefined) return [];
             let pwd = state.pwd || "";
             let filesInPwd = state.files.filter(e => !e.misc?.deleted && e.name.startsWith(pwd));
-            let folders = [
-                ...new Set(
-                    filesInPwd
-                        .map(e => e.name.slice(pwd.length))
-                        .filter(e => e.indexOf("/") != -1)
-                        .map(e => e.slice(0, e.indexOf("/") + 1))
-                )
-            ].map(e => ({
+            let folders = [...new Set(
+                filesInPwd
+                    .concat(state.emptyFolders.filter(e => !e.deleted))
+                    .map(e => e.name.slice(state.pwd.length))
+                    .filter(e => e.indexOf("/") != -1)
+                    .map(e => e.slice(0, e.indexOf("/") + 1))
+            )].map(e => ({
                 type: "folder",
                 id: Math.random(),
                 name: e,
@@ -241,19 +241,24 @@ const initFuzzyFinders = state => {
                 input.focus();
 
                 input.addEventListener("keydown", async (e) => {
-                    if (e.key == "Enter") {
+                    if (e.key !== "Enter") return;
+
+                    if (input.value.slice(input.value.length - 1) != "/") {
                         await state.createFile({ name: state.pwd + input.value });
                         await state.reload(["files"]);
-                        this.loadContent();
+                    } else {
+                        state.emptyFolders.push({ name: state.pwd + input.value });
                     }
+                    this.loadContent();
                 });
             });
 
             this.element.querySelector(".top .delete").addEventListener("click", async (e) => {
                 let entry = this.entries.find(f => f.id == this.element.querySelector(".list .active").getAttribute("item-id"));
-                if (entry.type == "folder")
+                if (entry.type == "folder") {
+                    // for (let folder in state.emptyFolders) if (folder.name.startsWith(entry.name)) folder.deleted = true; // TODO: figure out why this doesn't work
                     await Promise.all(entry.files.map(f => state.commands.find(g => g.codename == "file>delete").run(f.id)));
-                else await state.commands.find(f => f.codename == "file>delete").run(entry.id);
+                } else await state.commands.find(f => f.codename == "file>delete").run(entry.id);
 
                 await state.reload(["files", "currentFile"]);
                 this.loadContent();
