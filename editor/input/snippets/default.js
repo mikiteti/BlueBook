@@ -16,6 +16,7 @@ class DefaultSnippets {
             { from: "!>", to: "↦ ", in: "tA" },
             { from: "<!", to: "↤ ", in: "tA" },
             { from: "--", to: "\–", in: "tA" },
+            { from: /(\d)deg/, to: "[[0]]°", in: "rtA" },
             { from: ", ", to: ",\\enspace ${0}", in: "mA" },
             { from: ",,", to: "\\, ", in: "mA" },
             { from: "  ", to: "\\enspace ${0}", in: "mA" },
