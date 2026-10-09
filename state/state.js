@@ -223,7 +223,7 @@ class State {
         this.editor = editor;
         let index = this.editors.find(e => e.id === editor.fileId);
         if (index !== undefined) this.editors = this.editors.slice(0, index).concat(this.editors.slice(index + 1)).concat(editor);
-        document.title = file.name;
+        document.title = file.name.slice(file.name.lastIndexOf("/") + 1);
     }
 
     async saveFile(editor = this.editor) {
