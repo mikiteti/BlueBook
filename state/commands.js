@@ -544,7 +544,11 @@ const newCommands = (state) => {
                 input.accept = "image/*,.pdf";
                 input.addEventListener("change", async () => {
                     const file = input.files[0];
-                    if (file == undefined) return;
+                    if (file == undefined) {
+                        vars.UI.alert("Error", "No file selected");
+                        console.log("No file selected");
+                        return;
+                    }
 
                     const form = new FormData();
                     form.append("file", file);
@@ -553,6 +557,7 @@ const newCommands = (state) => {
                         name: file.name,
                     }));
 
+                    console.log("Sending file upload request", form);
                     let res = await state.sendRequest("attachment/upload", {
                         method: 'POST',
                         body: form,
