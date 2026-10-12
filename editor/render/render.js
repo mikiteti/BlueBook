@@ -21,6 +21,12 @@ class Render {
         queueMicrotask(() => {
             editor.doc.change.addCallback(renderCarets);
         });
+        editor.doc.change.addCallback(() => {
+            let file = window.state.files.find(e => e.id == editor.fileId);
+            if (file == undefined) return;
+            file.saved = false;
+            window.state.setDocumentTitle();
+        });
 
         this.decos = ["underline", "bold", "Bold", "italic", "highlight", "math", "center", "small", "large", "capital", "spin_border", "h1", "h2", "h3", "h4", "h5", "h6", "subtitle", "link"];
         this.selection = new Selection(editor);
