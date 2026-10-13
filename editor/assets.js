@@ -547,8 +547,6 @@ const exportToMD = async (editor = window.editor) => {
 
         if (decos.has("math") && text.trim() !== "") text = "$$" + text + "$$";
         let lastLine = content.at(-1);
-        if (lastLine != "" && (decos.has("h1") || decos.has("h2") || decos.has("h3") || decos.has("h4") || decos.has("h5") || decos.has("h6")))
-            insertEmptyLineInFront = true;
         if (decos.has("h1")) text = "# " + text;
         // else if (decos.has("small")) text = "<small>" + text + "</small>";
         else if (decos.has("h2")) text = "## " + text;
@@ -572,6 +570,7 @@ const exportToMD = async (editor = window.editor) => {
 
         if (text[0] == "#") insertEmptyLineInFront = true;
         for (let j = 0; j < line.tabs.full || 0; j++) text = "\t" + text;
+        if (!decos.has("math")) insertEmptyLineInFront = true // TODO: experimental
         if (insertEmptyLineInFront && lastLine.trim() != "") text = "\n" + text;
 
         content.push(text);
