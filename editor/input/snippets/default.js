@@ -26,6 +26,7 @@ class DefaultSnippets {
             { from: "=>", to: "\\implies ", in: "mA" },
             { from: "->", to: "\\longrightarrow ", in: "mA" }, // →
             { from: "\\longleftarrow >", to: "\\longleftrightarrow ", in: "mA", priority: 1 },
+            { from: "\\leq >", to: "\\Longleftrightarrow ", in: "mA", priority: 1 },
             // { from: "<=>", to: "\\longleftrightarrow ", in: "mA", priority: 1 },
             // { from: "\\leq >", to: "\\longleftrightarrow ", in: "mA", priority: 1 },
             // {from: "<=", to: "\\impliedby ", in: "mA"},
