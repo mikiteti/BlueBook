@@ -137,8 +137,8 @@ class DefaultSnippets {
             { from: /([A-Z])cal/, to: "\\mathcal{[[0]]}", in: "rmA" },
             { from: /([A-Z])rm/, to: "\\mathrm{[[0]]}", in: "rmA" },
             { from: /([a-zA-Z])vec/, to: "\\vec{[[0]]}", in: "rmA" },
-            { from: /\\(${SUBSCRIPTABLE}){([a-zA-z])},\./, to: "\\mathbf{\\[[0]]{[[1]]}}", in: "rmA" },
-            { from: /\\(${SUBSCRIPTABLE}){([a-zA-z])}\.,/, to: "\\mathbf{\\[[0]]{[[1]]}}", in: "rmA" },
+            { from: /\\(${SUBSCRIPTABLE}){([a-zA-z])},\./, to: "\\[[0]]{\\mathbf{[[1]]}}", in: "rmA" },
+            { from: /\\(${SUBSCRIPTABLE}){([a-zA-z])}\.,/, to: "\\[[0]]{\\mathbf{[[1]]}}", in: "rmA" },
             { from: /([a-zA-Z]),\./, to: "\\mathbf{[[0]]}", in: "rmA", priority: 1 },
             { from: /([a-zA-Z])\.,/, to: "\\mathbf{[[0]]}", in: "rmA" },
 

@@ -1274,6 +1274,23 @@ const createCommandSet = editor => {
                                 run: () => {
                                     window.state.saveFile(editor);
                                 }
+                            },
+                            {
+                                name: "save all",
+                                keys: ["a"],
+                                next: [
+                                    {
+                                        name: "enter",
+                                        keys: ["Enter"],
+                                        run: () => {
+                                            for (let e of window.state.editors) {
+                                                let file = window.state.files.find(f => f.id == e.fileId);
+                                                if (file == undefined) continue;
+                                                if (file.saved !== undefined && !file.saved) window.state.saveFile(e);
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     }
