@@ -588,6 +588,7 @@ const exportToMD = async (editor = window.editor) => {
 
     return content;
 }
+window.exportToMD = exportToMD;
 
 let platform;
 if (navigator.platform.toUpperCase().includes("MAC")) platform = "mac";
