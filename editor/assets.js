@@ -533,6 +533,7 @@ const exportToMD = async (editor = window.editor) => {
             underline: ["<u>", "</u>"],
         }
         let marks = line.marks.sort((a, b) => a.from.index - b.from.index).map(e => [e.start.column, e.end.column, e.role]);
+        if (decos.has("math")) marks = [];
         let offset = 0;
         for (let mark of marks) {
             if (markSigns[mark[2]] == undefined) continue;
