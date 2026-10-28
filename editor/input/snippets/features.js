@@ -31,10 +31,21 @@ const getFeatures = (editor, {
         if (closeBracket[open] == undefined || closeBracket[open] !== close) return;
         let text = pos.Line.text, textBefore = text.slice(0, pos.index - pos.Line.from), textAfter = text.slice(pos.index - pos.Line.from);
         if (textBefore.lastIndexOf(env[0]) === -1) return;
-        let openCol = textBefore.lastIndexOf(env[0]) + env[0].length - 1,
-            closeCol = findMatchingBracket(text, openCol);
 
-        return (openCol <= pos.index - pos.Line.from && closeCol >= pos.index - pos.Line.from);
+        let indexes = [];
+        let index = Infinity;
+        let counter = 0;
+        while (counter < 16 && index && textBefore.slice(0, index).lastIndexOf(env[0]) > -1) {
+            index = textBefore.slice(0, index).lastIndexOf(env[0]) + env[0].length - 1;
+            indexes.push(index);
+            counter++;
+        }
+
+        for (let index of indexes)
+            if (index <= pos.index - pos.Line.from && findMatchingBracket(text, index) >= pos.index - pos.Line.from)
+                return true;
+
+        return false;
     }
 
     const autoEnlarge = (Line) => {
