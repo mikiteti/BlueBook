@@ -230,6 +230,7 @@ class State {
         if (index !== undefined) this.editors = this.editors.slice(0, index).concat(this.editors.slice(index + 1)).concat(editor);
 
         this.setDocumentTitle(file);
+        document.getElementById("focus").focus();
     }
 
     setDocumentTitle(
