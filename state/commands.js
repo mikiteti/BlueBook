@@ -86,7 +86,13 @@ const newCommands = (state) => {
         {
             name: "Create user",
             run: async () => {
-                let [email, name, password] = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", { Email: "john@doe.com", Name: "John Doe", Password: "Secret123" });
+                let prompt = await vars.UI.prompt("Create user", "Input your email, name and password to create an account", [
+                    { name: "Email", placeholder: "john@doe.com" },
+                    { name: "Name", placeholder: "John Doe" },
+                    { name: "Password", placeholder: "Secret123", type: "password" },
+                ]);
+                if (prompt == -1) return;
+                let [email, name, password] = prompt;
                 let res = await state.sendRequest("user/new", {
                     method: 'POST',
                     body: JSON.stringify({ email, name, password }),
@@ -104,8 +110,15 @@ const newCommands = (state) => {
         {
             name: "Login",
             run: async (email, password) => {
-                if (email == undefined || password == undefined) [email, password] =
-                    await vars.UI.prompt("Login", 'Input your email and password to log in', { "Email": "john@doe.com", "Password": "Secret123" });
+                if (email == undefined || password == undefined) {
+                    let prompt =
+                        await vars.UI.prompt("Login", 'Input your email and password to log in', [
+                            { name: "Email", placeholder: "john@doe.com" },
+                            { name: "Password", placeholder: "Secret123", type: "password" },
+                        ]);
+                    if (prompt == -1) return;
+                    [email, password] = prompt;
+                }
                 console.log(email, password);
                 localStorage.setItem('email', email);
                 localStorage.setItem('password', password);
@@ -119,6 +132,27 @@ const newCommands = (state) => {
                 let text = await res.text();
                 console.log(text);
                 vars.UI.alert("Welcome", `You are now logged in`);
+                state.reload(["user", "files", "currentFile", "editors"]);
+            }
+        },
+        {
+            name: "Log out",
+            run: async () => {
+                let res = await state.sendRequest("user/logout", {
+                    method: 'POST',
+                });
+                if (res === -1) return;
+                let json = await res.json();
+                if (!json.success) return;
+
+                localStorage.removeItem('email');
+                localStorage.removeItem('password');
+
+                const url = new URL(window.location.href);
+                url.searchParams.delete('note');
+                history.replaceState(null, '', url);
+
+                vars.UI.alert("Godspeed", `Your are now logged out`);
                 state.reload(["user", "files", "currentFile", "editors"]);
             }
         },
@@ -151,7 +185,11 @@ const newCommands = (state) => {
             name: "Rename file",
             codename: "file>rename",
             run: async () => {
-                let [name] = await vars.UI.prompt("Rename file", 'Input the new filename', { "Filename": state.files.find(e => e.id == vars.editor.fileId)?.name || "" });
+                let prompt = await vars.UI.prompt("Rename file", 'Input the new filename', [
+                    { name: "Filename", value: state.files.find(e => e.id == vars.editor.fileId)?.name || "" }
+                ]);
+                if (prompt == -1) return;
+                let [name] = prompt;
                 let res = await state.sendRequest("note/update", {
                     method: 'POST',
                     body: JSON.stringify({ id: vars.editor.fileId, name }),
@@ -207,7 +245,11 @@ const newCommands = (state) => {
             name: "New file",
             codename: "file>new",
             run: async () => {
-                let [fileName] = await vars.UI.prompt("New file", "Input the filename in the box below", { Filename: "My new file" });
+                let prompt = await vars.UI.prompt("New file", "Input the filename in the box below", [
+                    { name: "Filename", placeholder: "My new file" }
+                ]);
+                if (prompt == -1) return;
+                let [fileName] = prompt;
 
                 await state.openFile(await state.createFile({ name: fileName }));
                 vars.UI.focusEditor();

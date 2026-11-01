@@ -187,9 +187,16 @@ class UI {
         if (input) input.focus();
     }
 
-    async closeModal() {
-        this.focus.classList.remove("active");
-        this.focus.animate([
+    async closeModal(modal = this.focus) {
+        if (modal.classList.contains("modal")) {
+            modal.classList.remove("active");
+        } else if (modal.classList.contains("prompt")) {
+            modal.style.display = "none";
+            setTimeout(() => {
+                modal.remove();
+            }, 100)
+        }
+        modal.animate([
             { opacity: 1, transform: "translate(-50%, 0px)", display: "flex" },
             { opacity: 0, transform: "translate(-50%, 3px)", display: "flex" }
         ], { duration: 100 });
@@ -204,7 +211,10 @@ class UI {
 
         return new Promise(res => {
             setTimeout(() => {
-                requestAnimationFrame(res);
+                requestAnimationFrame(() => {
+                    if (modal.onClose) modal.onClose();
+                    res();
+                });
             }, 100)
         });
     }
@@ -244,7 +254,10 @@ class UI {
         element.classList.add("prompt");
         let innerHTML = `<div class="title">${title}</div><div class="description">${description}</div><div class="grid">`;
         console.log(fields);
-        for (let field in fields) innerHTML += `<label for="${field}">${field}</label><input type="text" id="${field}" name="${field}" placeholder="${fields[field] || ""}">`;
+        for (let field of fields) innerHTML += `
+            <label for="${field.name}">${field.name}</label>
+            <input type="${field.type || "text"}" id="${field.name}" name="${field.name}" placeholder="${field.placeholder || ""}" value="${field.value || ""}">
+        `;
         innerHTML += "</div>";
         element.innerHTML = innerHTML;
         let submit = document.createElement("div");
@@ -266,6 +279,7 @@ class UI {
         this.focus = element;
 
         let promise = new Promise((res) => {
+            element.onClose = () => { res(-1) };
             submit.addEventListener("click", _ => {
                 let inputElements = element.querySelectorAll("input");
                 let inputs = [];

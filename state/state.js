@@ -55,6 +55,11 @@ class State {
         this.systemFiles = systemFiles;
         this.URL = new URL(window.location);
         this.note_url = this.URL.searchParams.get("note");
+        if (this.note_url == "undefined") {
+            this.note_url = undefined;
+            this.URL.searchParams.delete('note');
+            history.replaceState(null, '', this.URL);
+        }
         // if (this.settings.welcomeMessage) {
         //     this.URL.searchParams.delete("note");
         //     history.replaceState({}, "", this.URL);
@@ -212,7 +217,7 @@ class State {
             if (file.id === undefined) file = await this.createFile(file);
             file = this.files.find(e => e.id === file.id)
         }
-        if (!this.settings.welcomeMessage) this.setNoteUrl(file.url);
+        if (!this.settings.welcomeMessage && file.url) this.setNoteUrl(file.url);
 
         let editor = this.editors.filter(e => e.fileId != undefined).find(e => e.fileId === file.id);
         if (editor == undefined) {
@@ -301,9 +306,11 @@ class State {
     async reload(elements = ["files", "user", "currentFile"]) {
         if (elements.includes("user")) {
             let res = await this.sendRequest("user/get");
-            let user = await res.json();
-            console.log("Logged in as:", user);
-            this.user = user;
+            if (res != -1) {
+                let user = await res.json();
+                console.log("Logged in as:", user);
+                this.user = user;
+            }
         }
 
         if (elements.includes("editors")) {
@@ -319,6 +326,8 @@ class State {
             if (lastEditor === undefined) this.openFile(this.systemFiles.find(e => e.id === "welcome"));
             else this.openFile(files.find(e => e.id === lastEditor.fileId));
         }
+
+        document.getElementById("focus").focus();
     }
 
     async restoreFile(id) {
