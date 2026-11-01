@@ -108,7 +108,7 @@ class UI {
         });
 
         window.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && this.focus?.classList?.contains("prompt")) {
+            if (e.key === "Enter" && this.focus?.classList?.contains("prompt") && Date.now() - this.focus.timestamp > 100) { // if prompt has been open for at least 0.1 second
                 let inputs = this.focus.querySelectorAll("input");
                 for (let i of inputs) if (i.value == "") return;
                 this.focus.querySelector(".submit").click();
@@ -251,6 +251,7 @@ class UI {
 
     prompt(title, description, fields) {
         let element = document.createElement("div");
+        element.timestamp = Date.now();
         element.classList.add("prompt");
         let innerHTML = `<div class="title">${title}</div><div class="description">${description}</div><div class="grid">`;
         console.log(fields);
@@ -298,7 +299,7 @@ class UI {
                 ], { duration: 100 });
 
                 document.getElementById("focus").focus();
-                requestAnimationFrame(() => { this.focus = this.editor; });
+                requestAnimationFrame(() => { window.state.UI.focus = window.state.editor; });
                 res(inputs);
             });
         });

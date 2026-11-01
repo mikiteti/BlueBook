@@ -235,6 +235,32 @@ const newCommands = (state) => {
             },
         },
         {
+            name: "Export selection to Pdf (uses Pandoc)",
+            codename: "file>export selection>pdf",
+            run: async () => {
+                let prompt = await vars.UI.prompt("What should be on the first page?", "Input the title and the name of author(s) of the document", [
+                    { name: "Title", value: window.state.files.find(e => e.id == vars.editor.fileId)?.name.split("/").at(-1) || vars.editor.fileId },
+                    { name: "Author", value: window.state.user?.name },
+                    { name: "Date", value: new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "2-digit" }).format(new Date()) },
+                ]);
+                if (prompt == -1) return;
+                let [title, author, date] = prompt;
+                vars.UI.alert("Compiling", "This may take a while");
+
+                let from = vars.editor.input.caret.carets[0].position.line,
+                    to = vars.editor.input.caret.carets[0].fixedEnd?.line || from;
+                if (from > to) [from, to] = [to, from];
+                to++;
+
+                let text = await exportToPdf(vars.editor, { title, author, date, from, to });
+                if (!text) {
+                    vars.UI.alert("Error", "Something went wrong with the export");
+                    return;
+                }
+                vars.UI.alert("Exported", "Your file has been downloaded");
+            },
+        },
+        {
             name: "Reload file",
             codename: "file>reload",
             run: () => {

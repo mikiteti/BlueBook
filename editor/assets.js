@@ -497,21 +497,31 @@ ${isSvg ? `\\includesvg[width=0.6\\textwidth]{${name}}` : `\\includegraphics[wid
 }
 window.exportToLaTeX = exportToLaTeX;
 
-const exportToMD = async (editor = window.editor) => {
-    let content = ["---"];
-    let title = window.state.files.find(e => e.id == editor.fileId)?.name.split("/").at(-1) || editor.fileId;
-    if (title) content.push(`title: ${title}`);
-    let author = window.state.user?.name;
-    if (author) content.push(`author: ${author}`);
-    let date = new Intl.DateTimeFormat(undefined, {
+const exportToMD = async (editor = window.editor, {
+    title = window.state.files.find(e => e.id == editor.fileId)?.name.split("/").at(-1) || editor.fileId,
+    author = window.state.user?.name,
+    date = new Intl.DateTimeFormat(undefined, {
         year: "numeric",
         month: "short",
         day: "2-digit"
-    }).format(new Date());
+    }).format(new Date()),
+    from = 0,
+    to = editor.doc.lines
+} = {}) => {
+    let content = ["---"];
+    // let title = window.state.files.find(e => e.id == editor.fileId)?.name.split("/").at(-1) || editor.fileId;
+    if (title) content.push(`title: ${title}`);
+    // let author = window.state.user?.name;
+    if (author) content.push(`author: ${author}`);
+    // let date = new Intl.DateTimeFormat(undefined, {
+    //     year: "numeric",
+    //     month: "short",
+    //     day: "2-digit"
+    // }).format(new Date());
     content.push(`date: ${date}
 ---`);
 
-    for (let i = 0; i < editor.doc.lines; i++) {
+    for (let i = from; i < to; i++) {
         let line = editor.doc.line(i), text = line.text;
         if (text.trim() == "") {
             content.push("");
@@ -735,8 +745,8 @@ const fuzzyFind = (string = "", array) => {
         .map(e => e.item);
 }
 
-let exportToPdf = async (editor = window.editor) => {
-    let markdown = await exportToMD(editor);
+let exportToPdf = async (editor = window.editor, options = {}) => {
+    let markdown = await exportToMD(editor, options);
     markdown = markdown.replaceAll(Environment.url, "http://bluebook:3000/");
 
     const convertUnitToSIUnitxCompatible = unit =>
