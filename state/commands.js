@@ -248,7 +248,7 @@ const newCommands = (state) => {
                 vars.UI.alert("Compiling", "This may take a while");
 
                 let from = vars.editor.input.caret.carets[0].position.line,
-                    to = vars.editor.input.caret.carets[0].fixedEnd?.line || from;
+                    to = (vars.editor.input.caret.carets[0].fixedEnd || vars.editor.input.caret.carets[0].position).line;
                 if (from > to) [from, to] = [to, from];
                 to++;
 

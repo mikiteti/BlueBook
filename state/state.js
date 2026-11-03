@@ -21,9 +21,7 @@ class State {
         this.settings = savedState.settings ? { ...Settings, ...savedState.settings } : Settings;
 
         // initialising native functionality
-        console.log(Native);
         if (Environment.native) this.native = new Native(this);
-        console.log(this.native);
 
         // initialising UI
         this.UI = new UI(this);
@@ -202,7 +200,6 @@ class State {
 
         if (res == -1) return res;
         let note = await res.json();
-        console.log(note);
         note.content = JSON.parse(note.content);
         note.misc = JSON.parse(note.misc || "{}");
         if (note.content == undefined || note.content.length === 0) note.content = [{ text: "" }];
