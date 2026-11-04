@@ -747,7 +747,9 @@ const fuzzyFind = (string = "", array) => {
 
 let exportToPdf = async (editor = window.editor, options = {}) => {
     let markdown = await exportToMD(editor, options);
-    markdown = markdown.replaceAll(Environment.url, "http://bluebook:3000/");
+    markdown = markdown
+        .replaceAll(Environment.url, "http://bluebook:3000/")
+        .replaceAll("&", "\\&");
 
     const convertUnitToSIUnitxCompatible = unit =>
         unit
