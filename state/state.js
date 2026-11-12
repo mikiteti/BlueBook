@@ -19,6 +19,7 @@ class State {
         if (savedState != undefined) savedState = JSON.parse(savedState);
         else savedState = {};
         this.settings = savedState.settings ? { ...Settings, ...savedState.settings } : Settings;
+        this.pwd = savedState.pwd || "";
 
         // initialising native functionality
         if (Environment.native) this.native = new Native(this);

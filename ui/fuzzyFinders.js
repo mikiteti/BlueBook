@@ -89,7 +89,6 @@ const initFuzzyFinders = state => {
         }
     });
 
-    state.pwd = "";
     state.emptyFolders = [];
     const fileExplorer = new FuzzyFinder({
         state,
