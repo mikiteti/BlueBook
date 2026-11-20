@@ -311,6 +311,17 @@ const newCommands = (state) => {
             hotkey: "M+s",
         },
         {
+            name: "Save all unsaved files",
+            codename: "file>save_all",
+            run: () => {
+                for (let e of window.state.editors) {
+                    let file = window.state.files.find(f => f.id == e.fileId);
+                    if (file == undefined) continue;
+                    if (file.saved !== undefined && !file.saved) window.state.saveFile(e);
+                }
+            },
+        },
+        {
             name: "New Desmos Graph",
             run: () => { createAttachment("graph") }
         },

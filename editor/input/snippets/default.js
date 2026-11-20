@@ -98,6 +98,7 @@ class DefaultSnippets {
             { from: "//", to: "\\frac{${0}}{${1}}${2}", in: "mA" },
             { from: "ee", to: "e^{ ${0} }${1}", in: "mA" },
             { from: "conj", to: "^{*}${0}", in: "mA" },
+            { from: "conv", to: "*", in: "mA" },
             { from: "Re", to: "\\mathrm{Re}", in: "mA" },
             { from: "Im", to: "\\mathrm{Im}", in: "mA" },
             { from: /([^\\])(det)/, to: "[[0]]\\[[1]]", in: "rmA" },
